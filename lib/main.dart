@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jsbmarineversion1/utils/WaterConnectionDBHelper.dart';
+import 'package:jsbmarineversion1/utils/controller.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
 import 'package:jsbmarineversion1/utils/save_local_storage.dart';
 import 'package:jsbmarineversion1/utils/string_constant.dart';
@@ -86,6 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // if(locationStatus.isDenied ==){
 
     // }
+
+    DataConstants.downloadDirectory = await Controller.getDownloadsDirectory();
+    DataConstants.canCreateImages = await Controller.createPictureFolder();
   }
 
   void getDeviceId() async {

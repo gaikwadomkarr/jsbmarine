@@ -17,7 +17,7 @@ abstract class _MeterReadingControllerBase with Store {
     var client = meterReadingDB;
     int success = 0;
     client!
-        .insert('meterreadings', meterReadingDb.toJson(),
+        .insert('MeterReadings', meterReadingDb.toJson(),
             conflictAlgorithm: ConflictAlgorithm.replace)
         .then((value) {});
 
@@ -33,7 +33,7 @@ abstract class _MeterReadingControllerBase with Store {
   bool deleteMeterReading(int id) {
     var client = meterReadingDB;
     int success = 0;
-    client!.delete("meterreadings", where: "id = ?", whereArgs: [id]).then(
+    client!.delete("MeterReadings", where: "id = ?", whereArgs: [id]).then(
         (value) {
       success = value;
     });
@@ -49,14 +49,14 @@ abstract class _MeterReadingControllerBase with Store {
   Future<List<MeterReadingRecord>> getConnections() async {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList =
-        await client!.query('meterreadings');
+        await client!.query('MeterReadings');
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
         deviceId: connectionList[i]['deviceId'],
         scanDate: connectionList[i]['scanDate'],
         meterReading: connectionList[i]['meterReading'],
-        barcode: connectionList[i]['barcode'],
+        barcode: int.parse(connectionList[i]['barcode']),
         miterNumber: connectionList[i]['miterNumber'],
         userID: connectionList[i]['userID'],
         branchID: connectionList[i]['branchID'],
@@ -74,7 +74,7 @@ abstract class _MeterReadingControllerBase with Store {
   // Future<void> updateLimitMeterReading() {
   //   var client = meterReadingDB;
   //   client!.rawUpdate(
-  //       '''UPDATE meterreadings SET uploadStatus = "Yes" Where id IN (Select id from meterreadings Where uploadStatus = "No" Limit 25)''');
+  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" Where id IN (Select id from MeterReadings Where uploadStatus = "No" Limit 25)''');
   //   print("entry made to database");
   // }
 
@@ -82,7 +82,7 @@ abstract class _MeterReadingControllerBase with Store {
   // Future<void> updateMeterReading() {
   //   var client = meterReadingDB;
   //   client!.rawUpdate(
-  //       '''UPDATE meterreadings SET uploadStatus = "Yes" WHERE uploadStatus = "No"''');
+  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" WHERE uploadStatus = "No"''');
   //   print("entry made to database");
   // }
 }

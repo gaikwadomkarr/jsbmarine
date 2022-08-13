@@ -5,8 +5,9 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:jsbmarineversion1/utils/data_constants.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:path/path.dart';
 import '../utils/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -254,5 +255,69 @@ class Controller {
             ),
           );
         });
+  }
+
+  static Future<bool> createPictureFolder() async {
+    bool cancreateimg = false;
+    String meterreadingFolder = join(
+      DataConstants.downloadDirectory,
+      "MeterReading",
+    );
+    String picturesFolder =
+        join(DataConstants.downloadDirectory, "MeterReading", "Pictures");
+    String dateFolder = join(DataConstants.downloadDirectory, "MeterReading",
+        "Pictures", DateFormat("dd-MM-yyyy").format(DateTime.now()));
+
+    Directory outputFile = Directory(meterreadingFolder);
+    Directory pictureFile = Directory(picturesFolder);
+    Directory dateFile = Directory(dateFolder);
+
+    if (outputFile.existsSync()) {
+      log("meter reading folder already exists");
+      if (pictureFile.existsSync()) {
+        if (dateFile.existsSync()) {
+          cancreateimg = true;
+        } else {
+          await dateFile.create().then((value) {
+            log('this is date folder dir $value');
+            cancreateimg = true;
+          }).onError((error, stackTrace) {
+            log(error.toString());
+          });
+        }
+      } else {
+        await pictureFile.create().then((value) async {
+          log('this is picture folder dir $value');
+
+          await dateFile.create().then((value) {
+            log('this is date folder dir $value');
+            cancreateimg = true;
+          }).onError((error, stackTrace) {
+            log(error.toString());
+          });
+        }).onError((error, stackTrace) {
+          log(error.toString());
+        });
+      }
+    } else {
+      await outputFile.create().then((value) {
+        log('this is meterreading folder dir $value');
+      }).onError((error, stackTrace) {
+        log(error.toString());
+      });
+      await pictureFile.create().then((value) {
+        log('this is picture folder dir $value');
+      }).onError((error, stackTrace) {
+        log(error.toString());
+      });
+      await dateFile.create().then((value) {
+        log('this is date folder dir $value');
+        cancreateimg = true;
+      }).onError((error, stackTrace) {
+        log(error.toString());
+      });
+    }
+
+    return cancreateimg;
   }
 }

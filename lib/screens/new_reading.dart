@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,7 +52,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
         _currentPosition = value;
       });
     });
-    log(_currentPosition!.latitude.toString() +
+    debugPrint(_currentPosition!.latitude.toString() +
         _currentPosition!.longitude.toString());
   }
 
@@ -118,36 +119,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () async {
-                        if (consumerNumber.isEmpty) {
-                          Get.showSnackbar(
-                              errorSnackBar('Please enter Consumer number'));
-                          return;
-                        }
-                        var image = await Controller.imgFromCamera(context);
-                        if (image != null) {
-                          setState(() {
-                            meterReadingImage = image;
-                          });
-                          pngByteData = await meterReadingImage!.readAsBytes();
-                          imagebase64 = base64Encode(pngByteData);
-                          final directory =
-                              await Controller.getDownloadsDirectory();
-                          Directory outputFile = Directory(directory +
-                              "/MeterReading/Pictures/${DateFormat("dd-MM-yyyy").format(DateTime.now())}");
-
-                          if (outputFile.existsSync()) {
-                            log("file already exists");
-                          } else {
-                            outputFile.create().then(
-                                (value) => log('this is image dir $value'));
-                          }
-                          File file = File(
-                              "${outputFile.path}/$consumerNumber${p.extension(meterReadingImage!.path)}");
-                          await file.writeAsBytes(pngByteData);
-                          // log(imagebase64.toString());
-                        }
-                      },
+                      onTap: getImage,
                       child: Container(
                         alignment: Alignment.center,
                         child: CircleAvatar(
@@ -207,7 +179,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                             selectedStatusValue = meterStatusNoList[index];
                             meterStatus = int.parse(meterStatusNoList[index]);
                           });
-                          log(selectedStatusValue.toString());
+                          debugPrint(selectedStatusValue.toString());
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -248,6 +220,39 @@ class _NewReadingPageState extends State<NewReadingPage> {
         ),
       ),
     ));
+  }
+
+  void getImage() async {
+    if (consumerNumber.isEmpty) {
+      Get.showSnackbar(errorSnackBar('Please enter Consumer number'));
+      return;
+    }
+    var image = await Controller.imgFromCamera(context);
+    if (image != null) {
+      setState(() {
+        meterReadingImage = image;
+      });
+      pngByteData = await meterReadingImage!.readAsBytes();
+      imagebase64 = base64Encode(pngByteData);
+      bool cancreateimg = false;
+      final directory = await Controller.getDownloadsDirectory();
+      String picturesFolder = p.join(directory, "MeterReading", "Pictures");
+      Directory pictureFile = Directory(picturesFolder);
+
+      if (DataConstants.canCreateImages) {
+        File file = File(
+            "${pictureFile.path}/${DateFormat("dd-MM-yyyy").format(DateTime.now())}/$consumerNumber${random(2, 5)}${p.extension(meterReadingImage!.path)}");
+        await file.writeAsBytes(pngByteData);
+      } else {
+        DataConstants.canCreateImages = await Controller.createPictureFolder();
+        getImage();
+      }
+      // log(imagebase64.toString());
+    }
+  }
+
+  int random(min, max) {
+    return min + Random().nextInt(max - min);
   }
 
   void addReading() async {
@@ -291,7 +296,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
         scanDate: DateTime.now().toString(),
         meterReading: int.parse(meterReading),
         barcode: int.parse(consumerNumber),
-        miterNumber: consumerNumber,
+        miterNumber: consumerNumber.toString(),
         userID: int.parse(DataConstants.userID),
         branchID: int.parse(DataConstants.branchID),
         latitude: "19.78",

@@ -19,4 +19,7 @@ class DataConstants {
   static String branchID = "";
   static String userID = "";
   static int currentPage = 0;
+
+  static String downloadDirectory = "";
+  static bool canCreateImages = false;
 }

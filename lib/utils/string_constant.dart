@@ -33,3 +33,8 @@ const List<String> meterStatusList = [
 ];
 
 const List<String> meterStatusNoList = ["1", "2", "3", "4", "5", "6", "7", "9"];
+
+// Important folder paths
+
+const meterReadingDir = "MeterReading";
+const picturesDir = "Pictures";

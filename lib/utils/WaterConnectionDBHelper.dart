@@ -42,28 +42,38 @@ class WaterConnectionDBHelper {
       log("Cannot get download folder path");
     }
     String meterReadingDbPath =
-        join("${directory!.path}/MeterReading/", 'MeterReading.db');
-    print("this is db path => " + meterReadingDbPath.toString());
+        join(directory!.path, "MeterReading", 'MeterReading.db');
+    Directory dir = Directory(meterReadingDbPath);
+
+    // if (!await dir.exists()) {
+    //   var database = openDatabase(
+    //     meterReadingDbPath,
+    //     version: 2,
+    //     onCreate: _onCreateMeter,
+    //   );
+    //   return database;
+    // } else {
+    //   print("this is db path => " + meterReadingDbPath.toString());
     var database = openDatabase(
       meterReadingDbPath,
       version: 2,
       onCreate: _onCreateMeter,
     );
-
     return database;
+    // }
   }
 
   void _onCreateMeter(Database db, int version) {
     db.execute('''
-      CREATE TABLE meterreadings(
+      CREATE TABLE MeterReadings(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userID TEXT,
-        branchID TEXT,
+        userID INTEGER,
+        branchID INTEGER,
         deviceId TEXT,
         barcode TEXT,
-        miterNumber INTEGER,
+        miterNumber TEXT,
         meterReading INTEGER,
-        meterStatus TEXT,
+        meterStatus INTEGER,
         latitude TEXT,
         longitude TEXT,
         locationName TEXT,
@@ -72,7 +82,9 @@ class WaterConnectionDBHelper {
         meterImage TEXT,
         uploadStatus TEXT
         )
-    ''');
+    ''').then((value) {
+      // debugPrint("this is db creation value ${value}");
+    });
     debugPrint("Database was created!");
   }
 
