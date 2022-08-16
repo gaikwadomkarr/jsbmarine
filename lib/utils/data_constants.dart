@@ -1,4 +1,5 @@
 import 'package:get_storage/get_storage.dart';
+import 'package:jsbmarineversion1/controller/all_entries_controller_mobx.dart';
 import 'package:jsbmarineversion1/controller/login_controller_mobx.dart';
 
 import '../api/mobx_api_calls.dart';
@@ -12,6 +13,8 @@ class DataConstants {
   static MeterReadingController meterReadingControllerMobx =
       MeterReadingController();
   static HomePageController homePageController = HomePageController();
+  static AllEntriesControllerMobx allEntriesControllerMobx =
+      AllEntriesControllerMobx();
   static String url = '';
   static String firebaseToken = '';
   static String uniqueId = "";

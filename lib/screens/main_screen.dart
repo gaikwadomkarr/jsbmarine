@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
+import 'package:jsbmarineversion1/screens/all_entries.dart';
 import 'package:jsbmarineversion1/screens/new_reading.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
 import 'package:jsbmarineversion1/utils/controller.dart';
@@ -19,9 +20,7 @@ class _MainScreenState extends State<MainScreen> {
   GlobalKey<SliderDrawerState> _key = GlobalKey<SliderDrawerState>();
   var childrens = [
     NewReadingPage(),
-    Container(
-      color: Colors.red,
-    ),
+    AllEntries(),
   ];
   @override
   Widget build(BuildContext context) {

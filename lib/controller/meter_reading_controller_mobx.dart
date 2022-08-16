@@ -1,4 +1,8 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
+import 'package:jsbmarineversion1/utils/data_constants.dart';
 import 'package:mobx/mobx.dart';
 import 'package:sqflite/sqflite.dart';
 part 'meter_reading_controller_mobx.g.dart';
@@ -50,6 +54,7 @@ abstract class _MeterReadingControllerBase with Store {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList =
         await client!.query('MeterReadings');
+    debugPrint(connectionList.toString());
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
@@ -62,6 +67,59 @@ abstract class _MeterReadingControllerBase with Store {
         branchID: connectionList[i]['branchID'],
         locationName: connectionList[i]['locationName'],
         imageBase64: connectionList[i]['imageBase64'],
+        meterImage: connectionList[i]['meterImage'],
+        meterStatus: connectionList[i]['meterStatus'],
+        uploadStatus: connectionList[i]['uploadStatus'],
+        latitude: connectionList[i]['latitude'],
+        longitude: connectionList[i]['longitude'],
+      );
+    });
+  }
+
+  Future<List<MeterReadingRecord>> getAllMeterReadingsByStatus(status) async {
+    final client = meterReadingDB;
+    final List<Map<String, dynamic>> connectionList = await client!
+        .rawQuery("SELECT * from MeterReadings WHERE uploadStatus='$status'");
+    return List.generate(connectionList.length, (i) {
+      return MeterReadingRecord(
+        id: connectionList[i]['id'],
+        deviceId: connectionList[i]['deviceId'],
+        scanDate: connectionList[i]['scanDate'],
+        meterReading: connectionList[i]['meterReading'],
+        barcode: int.parse(connectionList[i]['barcode']),
+        miterNumber: connectionList[i]['miterNumber'],
+        userID: connectionList[i]['userID'],
+        branchID: connectionList[i]['branchID'],
+        locationName: connectionList[i]['locationName'],
+        imageBase64: connectionList[i]['imageBase64'],
+        meterImage: connectionList[i]['meterImage'],
+        meterStatus: connectionList[i]['meterStatus'],
+        uploadStatus: connectionList[i]['uploadStatus'],
+        latitude: connectionList[i]['latitude'],
+        longitude: connectionList[i]['longitude'],
+      );
+    });
+  }
+
+  Future<List<MeterReadingRecord>> getAllMeterReadingsByMeterStatus(
+      int meterStatus) async {
+    final client = meterReadingDB;
+    final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
+        "SELECT * from MeterReadings WHERE meterStatus='$meterStatus'");
+    log(connectionList.toString());
+    return List.generate(connectionList.length, (i) {
+      return MeterReadingRecord(
+        id: connectionList[i]['id'],
+        deviceId: connectionList[i]['deviceId'],
+        scanDate: connectionList[i]['scanDate'],
+        meterReading: connectionList[i]['meterReading'],
+        barcode: int.parse(connectionList[i]['barcode']),
+        miterNumber: connectionList[i]['miterNumber'],
+        userID: connectionList[i]['userID'],
+        branchID: connectionList[i]['branchID'],
+        locationName: connectionList[i]['locationName'],
+        imageBase64: connectionList[i]['imageBase64'],
+        meterImage: connectionList[i]['meterImage'],
         meterStatus: connectionList[i]['meterStatus'],
         uploadStatus: connectionList[i]['uploadStatus'],
         latitude: connectionList[i]['latitude'],

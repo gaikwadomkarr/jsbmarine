@@ -31,8 +31,30 @@ const List<String> meterStatusList = [
   "Disconnection",
   "Faulty"
 ];
+const List<String> allmeterStatusList = [
+  "All",
+  "Normal Billing",
+  "Leak",
+  "Lock",
+  "Temper",
+  "No Use",
+  "Meter Stop",
+  "Disconnection",
+  "Faulty"
+];
 
 const List<String> meterStatusNoList = ["1", "2", "3", "4", "5", "6", "7", "9"];
+const List<String> allmeterStatusNoList = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "9"
+];
 
 // Important folder paths
 

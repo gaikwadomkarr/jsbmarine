@@ -37,12 +37,15 @@ class _NewReadingPageState extends State<NewReadingPage> {
   String imagebase64 = "";
   Position? _currentPosition;
   late SharedPreferences prefs;
+  late String finalImagePath = "";
 
   @override
   void initState() {
     super.initState();
     WaterConnectionDBHelper().meterreadingDb;
     _getCurrentLocation();
+    // debugPrint(
+    //     DataConstants.meterReadingControllerMobx.getConnections().toString());
   }
 
   _getCurrentLocation() async {
@@ -308,6 +311,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
         uploadStatus: "No");
     DataConstants.meterReadingControllerMobx
         .saveMeterReading(meterReadingRecord);
-    DataConstants.meterReadingControllerMobx.getConnections();
+    debugPrint(
+        DataConstants.meterReadingControllerMobx.getConnections().toString());
   }
 }
