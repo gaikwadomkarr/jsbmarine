@@ -43,6 +43,42 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
     });
   }
 
+  late final _$selectedConnectionsAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.selectedConnections',
+      context: context);
+
+  @override
+  List<MeterReadingRecord> get selectedConnections {
+    _$selectedConnectionsAtom.reportRead();
+    return super.selectedConnections;
+  }
+
+  @override
+  set selectedConnections(List<MeterReadingRecord> value) {
+    _$selectedConnectionsAtom.reportWrite(value, super.selectedConnections, () {
+      super.selectedConnections = value;
+    });
+  }
+
+  late final _$getallconnectionsAsyncAction = AsyncAction(
+      '_AllEntriesControllerMobxBase.getallconnections',
+      context: context);
+
+  @override
+  Future<void> getallconnections() {
+    return _$getallconnectionsAsyncAction.run(() => super.getallconnections());
+  }
+
+  late final _$getstatuswiseconnectionsAsyncAction = AsyncAction(
+      '_AllEntriesControllerMobxBase.getstatuswiseconnections',
+      context: context);
+
+  @override
+  Future<void> getstatuswiseconnections(int index) {
+    return _$getstatuswiseconnectionsAsyncAction
+        .run(() => super.getstatuswiseconnections(index));
+  }
+
   late final _$_AllEntriesControllerMobxBaseActionController =
       ActionController(name: '_AllEntriesControllerMobxBase', context: context);
 
@@ -59,10 +95,45 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
   }
 
   @override
+  void addSelectedRecord(MeterReadingRecord meterReadingRecord) {
+    final _$actionInfo = _$_AllEntriesControllerMobxBaseActionController
+        .startAction(name: '_AllEntriesControllerMobxBase.addSelectedRecord');
+    try {
+      return super.addSelectedRecord(meterReadingRecord);
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void removeSelectedRecord(MeterReadingRecord meterReadingRecord) {
+    final _$actionInfo =
+        _$_AllEntriesControllerMobxBaseActionController.startAction(
+            name: '_AllEntriesControllerMobxBase.removeSelectedRecord');
+    try {
+      return super.removeSelectedRecord(meterReadingRecord);
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void emptyselectedRecord() {
+    final _$actionInfo = _$_AllEntriesControllerMobxBaseActionController
+        .startAction(name: '_AllEntriesControllerMobxBase.emptyselectedRecord');
+    try {
+      return super.emptyselectedRecord();
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 allConnectionsLoader: ${allConnectionsLoader},
-allconnections: ${allconnections}
+allconnections: ${allconnections},
+selectedConnections: ${selectedConnections}
     ''';
   }
 }
