@@ -244,7 +244,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
 
       if (DataConstants.canCreateImages) {
         File file = File(
-            "${pictureFile.path}/${DateFormat("dd-MM-yyyy").format(DateTime.now())}/$consumerNumber${random(2, 5)}${p.extension(meterReadingImage!.path)}");
+            "${pictureFile.path}/${DateFormat("dd-MM-yyyy").format(DateTime.now())}/branch${DataConstants.branchID}$consumerNumber${random(2, 5)}${p.extension(meterReadingImage!.path)}");
         await file.writeAsBytes(pngByteData);
       } else {
         DataConstants.canCreateImages = await Controller.createPictureFolder();

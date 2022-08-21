@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -90,7 +91,9 @@ class _AllEntriesState extends State<AllEntries> {
                   SizedBox(
                     height: 2.h,
                   ),
-                  buildMeterRecord(),
+                  DataConstants.allEntriesControllerMobx.allConnectionsLoader
+                      ? const CircularProgressIndicator()
+                      : buildMeterRecord(),
                   Observer(builder: (context) {
                     return DataConstants.allEntriesControllerMobx
                             .selectedConnections.isNotEmpty
@@ -101,13 +104,51 @@ class _AllEntriesState extends State<AllEntries> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 CGradientButton(
-                                  buttonName: 'Upload',
-                                  onPress: () {},
-                                  color: primaryColor,
-                                ),
+                                    buttonName: DataConstants
+                                            .allEntriesControllerMobx
+                                            .uploadEntryLoader
+                                        ? ''
+                                        : 'Upload',
+                                    onPress: DataConstants
+                                            .allEntriesControllerMobx
+                                            .uploadEntryLoader
+                                        ? null
+                                        : () {
+                                            uploadEntry();
+                                          },
+                                    color: primaryColor,
+                                    icon: DataConstants.allEntriesControllerMobx
+                                            .uploadEntryLoader
+                                        ? const CircularProgressIndicator(
+                                            strokeWidth: 3,
+                                            color: primaryColor,
+                                          )
+                                        : null),
                                 CGradientButton(
                                   buttonName: 'Delete',
-                                  onPress: () {},
+                                  onPress: () async {
+                                    var success = await DataConstants
+                                        .meterReadingControllerMobx
+                                        .deleteMeterReading(
+                                            DataConstants
+                                                .allEntriesControllerMobx
+                                                .selectedConnections
+                                                .first
+                                                .id!,
+                                            selectedStatus);
+                                    if (success) {
+                                      DataConstants.allEntriesControllerMobx
+                                          .removeSelectedRecord(DataConstants
+                                              .allEntriesControllerMobx
+                                              .selectedConnections
+                                              .first);
+                                      Get.showSnackbar(successSnackBar(
+                                          'Record deleted successfully'));
+                                    } else {
+                                      // Get.showSnackbar(errorSnackBar(
+                                      //     'Failed. Please try again later'));
+                                    }
+                                  },
                                   color: Colors.red,
                                 ),
                               ],
@@ -140,6 +181,7 @@ class _AllEntriesState extends State<AllEntries> {
                   selectedStatus = int.parse(allmeterStatusNoList[index]);
                 });
                 log(selectedStatus.toString());
+                DataConstants.allEntriesControllerMobx.emptyselectedRecord();
                 if (index == 0) {
                   DataConstants.allEntriesControllerMobx.getallconnections();
                 } else {
@@ -168,82 +210,115 @@ class _AllEntriesState extends State<AllEntries> {
   Widget buildMeterRecord() {
     return Observer(builder: (context) {
       return Expanded(
-        child: ListView.builder(
-            shrinkWrap: true,
-            itemCount:
-                DataConstants.allEntriesControllerMobx.allconnections.length,
-            itemBuilder: ((context, index) {
-              var meterReadingRecord =
-                  DataConstants.allEntriesControllerMobx.allconnections[index];
-              return Container(
-                margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 0.5.h, horizontal: 2.w),
-                  tileColor: white,
-                  onTap: () {
-                    // if (DataConstants
-                    //         .allEntriesControllerMobx.selectedConnections.length ==
-                    //     1) {
-                    //   Get.showSnackbar(errorSnackBar('You can select only one'));
-                    // } else {
-                    if (DataConstants
-                        .allEntriesControllerMobx.selectedConnections
-                        .contains(meterReadingRecord)) {
-                      DataConstants.allEntriesControllerMobx
-                          .removeSelectedRecord(meterReadingRecord);
-                    } else {
-                      DataConstants.allEntriesControllerMobx
-                          .emptyselectedRecord();
-                      DataConstants.allEntriesControllerMobx
-                          .addSelectedRecord(meterReadingRecord);
-                    }
-                  },
-                  leading: CircleAvatar(
-                    radius: 7.w,
-                    backgroundImage:
-                        FileImage(File(meterReadingRecord.meterImage!)),
-                  ),
-                  title: RichText(
-                    text: TextSpan(
-                        text: 'Consumer Number : ',
-                        style: Controller.kwhiteSmallStyle(context, shade2),
-                        children: [
-                          TextSpan(
-                              text: meterReadingRecord.barcode!.toString(),
-                              style:
-                                  Controller.kwhiteSmallStyle(context, black))
-                        ]),
-                  ),
-                  subtitle: RichText(
-                    text: TextSpan(
-                        text: 'Meter Reading : ',
-                        style: Controller.kwhiteSmallStyle(context, shade2),
-                        children: [
-                          TextSpan(
-                              text: meterReadingRecord.meterReading!.toString(),
-                              style:
-                                  Controller.kwhiteSmallStyle(context, black))
-                        ]),
-                  ),
-                  trailing: DataConstants
-                          .allEntriesControllerMobx.selectedConnections
-                          .contains(meterReadingRecord)
-                      ? Icon(
-                          Icons.check_circle,
-                          color: primaryColor,
-                        )
-                      : Icon(
-                          Icons.check_circle_outline,
-                          color: shade4,
+        child: DataConstants.allEntriesControllerMobx.allconnections.isNotEmpty
+            ? ListView.builder(
+                shrinkWrap: true,
+                itemCount: DataConstants
+                    .allEntriesControllerMobx.allconnections.length,
+                itemBuilder: ((context, index) {
+                  var meterReadingRecord = DataConstants
+                      .allEntriesControllerMobx.allconnections[index];
+                  return Container(
+                    margin:
+                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
+                    child: ListTile(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 0.0.h, horizontal: 2.w),
+                        tileColor: white,
+                        onTap: () {
+                          // if (DataConstants
+                          //         .allEntriesControllerMobx.selectedConnections.length ==
+                          //     1) {
+                          //   Get.showSnackbar(errorSnackBar('You can select only one'));
+                          // } else {
+                          if (DataConstants
+                              .allEntriesControllerMobx.selectedConnections
+                              .contains(meterReadingRecord)) {
+                            DataConstants.allEntriesControllerMobx
+                                .removeSelectedRecord(meterReadingRecord);
+                          } else {
+                            DataConstants.allEntriesControllerMobx
+                                .emptyselectedRecord();
+                            DataConstants.allEntriesControllerMobx
+                                .addSelectedRecord(meterReadingRecord);
+                          }
+                        },
+                        leading: CircleAvatar(
+                          radius: 7.w,
+                          backgroundImage:
+                              FileImage(File(meterReadingRecord.meterImage!)),
                         ),
+                        title: RichText(
+                          text: TextSpan(
+                              text: 'Consumer Number : ',
+                              style:
+                                  Controller.kwhiteSmallStyle(context, shade2),
+                              children: [
+                                TextSpan(
+                                    text:
+                                        meterReadingRecord.barcode!.toString(),
+                                    style: Controller.kwhiteSmallStyle(
+                                        context, black))
+                              ]),
+                        ),
+                        subtitle: RichText(
+                          text: TextSpan(
+                              text: 'Meter Reading : ',
+                              style:
+                                  Controller.kwhiteSmallStyle(context, shade2),
+                              children: [
+                                TextSpan(
+                                    text: meterReadingRecord.meterReading!
+                                        .toString(),
+                                    style: Controller.kwhiteSmallStyle(
+                                        context, black))
+                              ]),
+                        ),
+                        trailing: Observer(builder: (context) {
+                          return DataConstants
+                                  .allEntriesControllerMobx.selectedConnections
+                                  .contains(meterReadingRecord)
+                              ? const Icon(
+                                  Icons.check_circle,
+                                  color: primaryColor,
+                                )
+                              : const Icon(
+                                  Icons.check_circle_outline,
+                                  color: shade4,
+                                );
+                        })),
+                  );
+                }))
+            : Center(
+                child: Text(
+                  'No Entries found!',
+                  style: Controller.kblackNormalStyle(context),
                 ),
-              );
-              ;
-            })),
+              ),
       );
+    });
+  }
+
+  void uploadEntry() async {
+    var data = Map<String, dynamic>.from(DataConstants
+        .allEntriesControllerMobx.selectedConnections.first
+        .toJson());
+    DateTime scanDate = DateTime.parse(data['scanDate']);
+    // data.remove("scanDate");
+    data.remove("uploadStatus");
+    data.remove("meterImage");
+    data.remove("id");
+    // data.addAll({"scanDate": scanDate});
+    log(data.toString());
+    // return;
+    Controller.getInternetStatus().then((value) async {
+      if (value!) {
+        DataConstants.mobxApiCalls.uploadEntry(data);
+      } else {
+        Get.showSnackbar(errorSnackBar('No Internet Connection'));
+      }
     });
   }
 }

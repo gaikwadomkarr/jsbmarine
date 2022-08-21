@@ -27,6 +27,41 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
     });
   }
 
+  late final _$selectedConnectionsLoaderAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.selectedConnectionsLoader',
+      context: context);
+
+  @override
+  bool get selectedConnectionsLoader {
+    _$selectedConnectionsLoaderAtom.reportRead();
+    return super.selectedConnectionsLoader;
+  }
+
+  @override
+  set selectedConnectionsLoader(bool value) {
+    _$selectedConnectionsLoaderAtom
+        .reportWrite(value, super.selectedConnectionsLoader, () {
+      super.selectedConnectionsLoader = value;
+    });
+  }
+
+  late final _$uploadEntryLoaderAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.uploadEntryLoader',
+      context: context);
+
+  @override
+  bool get uploadEntryLoader {
+    _$uploadEntryLoaderAtom.reportRead();
+    return super.uploadEntryLoader;
+  }
+
+  @override
+  set uploadEntryLoader(bool value) {
+    _$uploadEntryLoaderAtom.reportWrite(value, super.uploadEntryLoader, () {
+      super.uploadEntryLoader = value;
+    });
+  }
+
   late final _$allconnectionsAtom = Atom(
       name: '_AllEntriesControllerMobxBase.allconnections', context: context);
 
@@ -132,6 +167,8 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
   String toString() {
     return '''
 allConnectionsLoader: ${allConnectionsLoader},
+selectedConnectionsLoader: ${selectedConnectionsLoader},
+uploadEntryLoader: ${uploadEntryLoader},
 allconnections: ${allconnections},
 selectedConnections: ${selectedConnections}
     ''';

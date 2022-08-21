@@ -147,7 +147,7 @@ class ApiBasicCalls {
       dio.options.headers['Accept'] = 'application/json';
     }
 
-    if (TOKEN != null) {
+    if (TOKEN != '') {
       dio.options.headers['Authorization'] = 'Bearer ' + TOKEN;
     }
     //dio.interceptors.add(DioFirebasePerformanceInterceptor());

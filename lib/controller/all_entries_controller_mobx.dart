@@ -9,11 +9,15 @@ class AllEntriesControllerMobx = _AllEntriesControllerMobxBase
 abstract class _AllEntriesControllerMobxBase with Store {
   @observable
   bool allConnectionsLoader = false;
+  @observable
+  bool selectedConnectionsLoader = false;
+  @observable
+  bool uploadEntryLoader = false;
 
   @observable
   List<MeterReadingRecord> allconnections = [];
   @observable
-  List<MeterReadingRecord> selectedConnections = [];
+  List<MeterReadingRecord> selectedConnections = ObservableList();
 
   @action
   void updateAllConnections(List<MeterReadingRecord> data) {
@@ -23,16 +27,20 @@ abstract class _AllEntriesControllerMobxBase with Store {
 
   @action
   Future<void> getallconnections() async {
+    selectedConnectionsLoader = true;
     allconnections.clear();
     allconnections =
         await DataConstants.meterReadingControllerMobx.getConnections();
+    selectedConnectionsLoader = false;
   }
 
   @action
   Future<void> getstatuswiseconnections(int index) async {
+    selectedConnectionsLoader = true;
     allconnections.clear();
     allconnections = await DataConstants.meterReadingControllerMobx
         .getAllMeterReadingsByMeterStatus(index);
+    selectedConnectionsLoader = false;
   }
 
   @action
@@ -42,7 +50,7 @@ abstract class _AllEntriesControllerMobxBase with Store {
 
   @action
   void removeSelectedRecord(MeterReadingRecord meterReadingRecord) {
-    selectedConnections.remove(meterReadingRecord);
+    selectedConnections.removeWhere((element) => element == meterReadingRecord);
   }
 
   @action

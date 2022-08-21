@@ -89,4 +89,24 @@ class MobxApiCalls {
       Get.showSnackbar(errorSnackBar(e.response!.data['message']));
     }
   }
+
+  void uploadEntry(var data) async {
+    DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
+    String url = insertSingleBill;
+    try {
+      var response = await ApiBasicCalls().getDio('json').post(url, data: data);
+      log(response.requestOptions.baseUrl);
+      if (response.statusCode == 200) {
+        log(response.data.toString());
+        DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        Get.showSnackbar(errorSnackBar(response.data['message']));
+      } else {
+        DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        Get.showSnackbar(errorSnackBar(response.data['error_description']));
+      }
+    } on DioError catch (e) {
+      DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+      Get.showSnackbar(errorSnackBar(e.response!.data['Message']));
+    }
+  }
 }

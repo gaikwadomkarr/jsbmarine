@@ -16,7 +16,7 @@ const String BASEURL = "https://webbillingapi.jsbmarine.com";
 //const String singInUrl="/auth/signin";
 const String singInUrl = "/Token";
 const String checkTabUser = '/api/v1/Login/CheckTabuser';
-
+const String insertSingleBill = '/api/v1/Bill/InsertBillEntry';
 const String newReading = "New Reading";
 const String allEntries = "All Entries";
 const String logout = "Logout";

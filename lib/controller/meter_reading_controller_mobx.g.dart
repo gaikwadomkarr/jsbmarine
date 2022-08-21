@@ -41,6 +41,16 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
     });
   }
 
+  late final _$deleteMeterReadingAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.deleteMeterReading',
+      context: context);
+
+  @override
+  Future<bool> deleteMeterReading(int id, int meterStatus) {
+    return _$deleteMeterReadingAsyncAction
+        .run(() => super.deleteMeterReading(id, meterStatus));
+  }
+
   late final _$getConnectionsAsyncAction = AsyncAction(
       '_MeterReadingControllerBase.getConnections',
       context: context);
@@ -48,6 +58,37 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
   @override
   Future<List<MeterReadingRecord>> getConnections() {
     return _$getConnectionsAsyncAction.run(() => super.getConnections());
+  }
+
+  late final _$getAllMeterReadingsByStatusAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.getAllMeterReadingsByStatus',
+      context: context);
+
+  @override
+  Future<List<MeterReadingRecord>> getAllMeterReadingsByStatus(dynamic status) {
+    return _$getAllMeterReadingsByStatusAsyncAction
+        .run(() => super.getAllMeterReadingsByStatus(status));
+  }
+
+  late final _$getAllMeterReadingsByMeterStatusAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.getAllMeterReadingsByMeterStatus',
+      context: context);
+
+  @override
+  Future<List<MeterReadingRecord>> getAllMeterReadingsByMeterStatus(
+      int meterStatus) {
+    return _$getAllMeterReadingsByMeterStatusAsyncAction
+        .run(() => super.getAllMeterReadingsByMeterStatus(meterStatus));
+  }
+
+  late final _$deleteMeterRecordAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.deleteMeterRecord',
+      context: context);
+
+  @override
+  Future<String> deleteMeterRecord(MeterReadingRecord meterReadingRecord) {
+    return _$deleteMeterRecordAsyncAction
+        .run(() => super.deleteMeterRecord(meterReadingRecord));
   }
 
   late final _$_MeterReadingControllerBaseActionController =
@@ -59,17 +100,6 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
         .startAction(name: '_MeterReadingControllerBase.saveMeterReading');
     try {
       return super.saveMeterReading(meterReadingDb);
-    } finally {
-      _$_MeterReadingControllerBaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  bool deleteMeterReading(int id) {
-    final _$actionInfo = _$_MeterReadingControllerBaseActionController
-        .startAction(name: '_MeterReadingControllerBase.deleteMeterReading');
-    try {
-      return super.deleteMeterReading(id);
     } finally {
       _$_MeterReadingControllerBaseActionController.endAction(_$actionInfo);
     }
