@@ -41,6 +41,16 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
     });
   }
 
+  late final _$saveMeterReadingAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.saveMeterReading',
+      context: context);
+
+  @override
+  Future<bool> saveMeterReading(MeterReadingRecord meterReadingDb) {
+    return _$saveMeterReadingAsyncAction
+        .run(() => super.saveMeterReading(meterReadingDb));
+  }
+
   late final _$deleteMeterReadingAsyncAction = AsyncAction(
       '_MeterReadingControllerBase.deleteMeterReading',
       context: context);
@@ -91,18 +101,14 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
         .run(() => super.deleteMeterRecord(meterReadingRecord));
   }
 
-  late final _$_MeterReadingControllerBaseActionController =
-      ActionController(name: '_MeterReadingControllerBase', context: context);
+  late final _$updateMeterReadingAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.updateMeterReading',
+      context: context);
 
   @override
-  bool saveMeterReading(MeterReadingRecord meterReadingDb) {
-    final _$actionInfo = _$_MeterReadingControllerBaseActionController
-        .startAction(name: '_MeterReadingControllerBase.saveMeterReading');
-    try {
-      return super.saveMeterReading(meterReadingDb);
-    } finally {
-      _$_MeterReadingControllerBaseActionController.endAction(_$actionInfo);
-    }
+  Future<bool> updateMeterReading(int id, Map<String, dynamic> data) {
+    return _$updateMeterReadingAsyncAction
+        .run(() => super.updateMeterReading(id, data));
   }
 
   @override

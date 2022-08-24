@@ -19,15 +19,22 @@ abstract class _MeterReadingControllerBase with Store {
   Database? meterReadingDB;
 
   @action
-  bool saveMeterReading(MeterReadingRecord meterReadingDb) {
+  Future<bool> saveMeterReading(MeterReadingRecord meterReadingDb) async {
     var client = meterReadingDB;
     int success = 0;
-    client!
+    await client!
         .insert('MeterReadings', meterReadingDb.toJson(),
             conflictAlgorithm: ConflictAlgorithm.replace)
-        .then((value) {});
+        .then((value) {
+      log('insert status $value');
+      success = value;
+    }).catchError((onError) {
+      log(onError.toString());
+    }).onError((error, stackTrace) {
+      Get.showSnackbar(errorSnackBar(error.toString()));
+    });
 
-    if (success == 1) {
+    if (success >= 1) {
       print("reading entry made to database");
       return true;
     } else {
@@ -75,7 +82,7 @@ abstract class _MeterReadingControllerBase with Store {
         deviceId: connectionList[i]['deviceId'],
         scanDate: connectionList[i]['scanDate'],
         meterReading: connectionList[i]['meterReading'],
-        barcode: int.parse(connectionList[i]['barcode']),
+        barcode: connectionList[i]['barcode'],
         miterNumber: connectionList[i]['miterNumber'].toString(),
         userID: connectionList[i]['userID'],
         branchID: connectionList[i]['branchID'],
@@ -101,7 +108,7 @@ abstract class _MeterReadingControllerBase with Store {
         deviceId: connectionList[i]['deviceId'],
         scanDate: connectionList[i]['scanDate'],
         meterReading: connectionList[i]['meterReading'],
-        barcode: int.parse(connectionList[i]['barcode']),
+        barcode: connectionList[i]['barcode'],
         miterNumber: connectionList[i]['miterNumber'].toString(),
         userID: connectionList[i]['userID'],
         branchID: connectionList[i]['branchID'],
@@ -129,7 +136,7 @@ abstract class _MeterReadingControllerBase with Store {
         deviceId: connectionList[i]['deviceId'],
         scanDate: connectionList[i]['scanDate'],
         meterReading: connectionList[i]['meterReading'],
-        barcode: int.parse(connectionList[i]['barcode']),
+        barcode: connectionList[i]['barcode'],
         miterNumber: connectionList[i]['miterNumber'].toString(),
         userID: connectionList[i]['userID'],
         branchID: connectionList[i]['branchID'],
@@ -172,11 +179,22 @@ abstract class _MeterReadingControllerBase with Store {
   //   print("entry made to database");
   // }
 
-  // @action
-  // Future<void> updateMeterReading() {
-  //   var client = meterReadingDB;
-  //   client!.rawUpdate(
-  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" WHERE uploadStatus = "No"''');
-  //   print("entry made to database");
-  // }
+  @action
+  Future<bool> updateMeterReading(int id, Map<String, dynamic> data) async {
+    var client = meterReadingDB;
+    int success = 0;
+    client!
+        .update('MeterReadings', {"uploadStatus": "Yes"},
+            where: "id= ?", whereArgs: [id])
+        .then((value) {
+      success = value;
+    });
+    print("upload status updated");
+
+    if (success == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

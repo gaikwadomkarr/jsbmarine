@@ -62,6 +62,22 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
     });
   }
 
+  late final _$remainingUploadsAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.remainingUploads', context: context);
+
+  @override
+  int get remainingUploads {
+    _$remainingUploadsAtom.reportRead();
+    return super.remainingUploads;
+  }
+
+  @override
+  set remainingUploads(int value) {
+    _$remainingUploadsAtom.reportWrite(value, super.remainingUploads, () {
+      super.remainingUploads = value;
+    });
+  }
+
   late final _$allconnectionsAtom = Atom(
       name: '_AllEntriesControllerMobxBase.allconnections', context: context);
 
@@ -169,6 +185,7 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
 allConnectionsLoader: ${allConnectionsLoader},
 selectedConnectionsLoader: ${selectedConnectionsLoader},
 uploadEntryLoader: ${uploadEntryLoader},
+remainingUploads: ${remainingUploads},
 allconnections: ${allconnections},
 selectedConnections: ${selectedConnections}
     ''';

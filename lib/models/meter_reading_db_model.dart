@@ -2,18 +2,18 @@ class MeterReadingRecord {
   int? id;
   String? deviceId;
   String? scanDate;
-  int? meterReading;
-  int? barcode;
+  String? meterReading;
+  String? barcode;
   String? miterNumber;
-  int? userID;
-  int? branchID;
+  String? userID;
+  String? branchID;
   String? latitude;
   String? longitude;
   String? locationName;
   String? imageBase64;
   String? meterImage;
   String? uploadStatus;
-  int? meterStatus;
+  String? meterStatus;
 
   MeterReadingRecord(
       {this.id,

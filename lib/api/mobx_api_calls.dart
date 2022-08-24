@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jsbmarineversion1/api/api_basic_call.dart';
+import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
+import 'package:jsbmarineversion1/screens/authentication/login.dart';
 import 'package:jsbmarineversion1/screens/main_screen.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
 import 'package:jsbmarineversion1/utils/save_local_storage.dart';
@@ -90,7 +92,7 @@ class MobxApiCalls {
     }
   }
 
-  void uploadEntry(var data) async {
+  void uploadEntry(var data, int id, int selectedStatus) async {
     DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
     String url = insertSingleBill;
     try {
@@ -98,8 +100,20 @@ class MobxApiCalls {
       log(response.requestOptions.baseUrl);
       if (response.statusCode == 200) {
         log(response.data.toString());
+        await DataConstants.meterReadingControllerMobx
+            .updateMeterReading(id, data);
+        List<MeterReadingRecord> connections;
+        if (selectedStatus == 0) {
+          connections =
+              await DataConstants.meterReadingControllerMobx.getConnections();
+        } else {
+          connections = await DataConstants.meterReadingControllerMobx
+              .getAllMeterReadingsByMeterStatus(selectedStatus);
+        }
+        DataConstants.allEntriesControllerMobx
+            .updateAllConnections(connections);
         DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
-        Get.showSnackbar(errorSnackBar(response.data['message']));
+        Get.showSnackbar(successSnackBar(response.data['Message']));
       } else {
         DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
         Get.showSnackbar(errorSnackBar(response.data['error_description']));
@@ -107,6 +121,9 @@ class MobxApiCalls {
     } on DioError catch (e) {
       DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
       Get.showSnackbar(errorSnackBar(e.response!.data['Message']));
+      if (e.response!.data.toString().contains('denied')) {
+        Get.offAll(LoginScreen());
+      }
     }
   }
 }

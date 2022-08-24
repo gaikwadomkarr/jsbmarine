@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
 import 'package:jsbmarineversion1/utils/controller.dart';
@@ -77,7 +78,7 @@ class _AllEntriesState extends State<AllEntries> {
                           height: 1.h,
                         ),
                         Text(
-                          "Remaining Entries - ${DataConstants.allEntriesControllerMobx.allconnections.length}",
+                          "Remaining Entries - ${DataConstants.allEntriesControllerMobx.remainingUploads}",
                           style: Controller.kwhiteSemiBoldNormalStyle(
                               context, white),
                         ),
@@ -103,27 +104,38 @@ class _AllEntriesState extends State<AllEntries> {
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                CGradientButton(
-                                    buttonName: DataConstants
-                                            .allEntriesControllerMobx
-                                            .uploadEntryLoader
-                                        ? ''
-                                        : 'Upload',
-                                    onPress: DataConstants
-                                            .allEntriesControllerMobx
-                                            .uploadEntryLoader
-                                        ? null
-                                        : () {
-                                            uploadEntry();
-                                          },
-                                    color: primaryColor,
-                                    icon: DataConstants.allEntriesControllerMobx
-                                            .uploadEntryLoader
-                                        ? const CircularProgressIndicator(
-                                            strokeWidth: 3,
-                                            color: primaryColor,
-                                          )
-                                        : null),
+                                if (DataConstants
+                                        .allEntriesControllerMobx
+                                        .selectedConnections
+                                        .first
+                                        .uploadStatus ==
+                                    "No")
+                                  CGradientButton(
+                                      buttonName: DataConstants
+                                              .allEntriesControllerMobx
+                                              .uploadEntryLoader
+                                          ? ''
+                                          : 'Upload',
+                                      onPress: DataConstants
+                                              .allEntriesControllerMobx
+                                              .uploadEntryLoader
+                                          ? null
+                                          : () {
+                                              uploadEntry(DataConstants
+                                                  .allEntriesControllerMobx
+                                                  .selectedConnections
+                                                  .first
+                                                  .id!);
+                                            },
+                                      color: primaryColor,
+                                      icon: DataConstants
+                                              .allEntriesControllerMobx
+                                              .uploadEntryLoader
+                                          ? const CircularProgressIndicator(
+                                              strokeWidth: 3,
+                                              color: white,
+                                            )
+                                          : null),
                                 CGradientButton(
                                   buttonName: 'Delete',
                                   onPress: () async {
@@ -186,14 +198,17 @@ class _AllEntriesState extends State<AllEntries> {
                   DataConstants.allEntriesControllerMobx.getallconnections();
                 } else {
                   DataConstants.allEntriesControllerMobx
-                      .getstatuswiseconnections(index);
+                      .getstatuswiseconnections(selectedStatus);
                 }
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                 margin: EdgeInsets.only(right: 2.w),
                 decoration: BoxDecoration(
-                  color: selectedStatus == index ? primaryColor : grey,
+                  color: selectedStatus ==
+                          (selectedStatus == 9 ? index + 1 : index)
+                      ? primaryColor
+                      : grey,
                   borderRadius: BorderRadius.circular(2.w),
                 ),
                 alignment: Alignment.center,
@@ -226,7 +241,9 @@ class _AllEntriesState extends State<AllEntries> {
                             borderRadius: BorderRadius.circular(10)),
                         contentPadding: EdgeInsets.symmetric(
                             vertical: 0.0.h, horizontal: 2.w),
-                        tileColor: white,
+                        tileColor: meterReadingRecord.uploadStatus == "No"
+                            ? Colors.green[100]
+                            : white,
                         onTap: () {
                           // if (DataConstants
                           //         .allEntriesControllerMobx.selectedConnections.length ==
@@ -301,21 +318,22 @@ class _AllEntriesState extends State<AllEntries> {
     });
   }
 
-  void uploadEntry() async {
+  void uploadEntry(int id) async {
     var data = Map<String, dynamic>.from(DataConstants
         .allEntriesControllerMobx.selectedConnections.first
         .toJson());
-    DateTime scanDate = DateTime.parse(data['scanDate']);
-    // data.remove("scanDate");
+    String scanDate =
+        DateFormat('MM/dd/yyyy').format(DateTime.parse(data['scanDate']));
+    data.remove("scanDate");
     data.remove("uploadStatus");
     data.remove("meterImage");
     data.remove("id");
-    // data.addAll({"scanDate": scanDate});
+    data.addAll({"scanDate": scanDate});
     log(data.toString());
     // return;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
-        DataConstants.mobxApiCalls.uploadEntry(data);
+        DataConstants.mobxApiCalls.uploadEntry(data, id, selectedStatus);
       } else {
         Get.showSnackbar(errorSnackBar('No Internet Connection'));
       }

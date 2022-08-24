@@ -67,13 +67,13 @@ class WaterConnectionDBHelper {
     db.execute('''
       CREATE TABLE MeterReadings(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userID INTEGER,
-        branchID INTEGER,
+        userID TEXT,
+        branchID TEXT,
         deviceId TEXT,
         barcode TEXT,
         miterNumber TEXT,
-        meterReading INTEGER,
-        meterStatus INTEGER,
+        meterReading TEXT,
+        meterStatus TEXT,
         latitude TEXT,
         longitude TEXT,
         locationName TEXT,

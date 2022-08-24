@@ -30,7 +30,9 @@ class NewReadingPage extends StatefulWidget {
 
 class _NewReadingPageState extends State<NewReadingPage> {
   String consumerNumber = "", meterReading = "";
-  int meterStatus = 0;
+  TextEditingController cnController = TextEditingController();
+  TextEditingController mrController = TextEditingController();
+  int meterStatus = 1;
   File? meterReadingImage;
   String? selectedStatusValue = "1";
   var pngByteData;
@@ -64,14 +66,12 @@ class _NewReadingPageState extends State<NewReadingPage> {
     return SafeArea(
         child: Scaffold(
       backgroundColor: shade4,
-      body: SingleChildScrollView(
-        child: Container(
-          height: 85.h,
-          margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
-          // padding: MediaQuery.of(context).viewInsets,
+      body: Container(
+        margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Consumer Number",
@@ -94,6 +94,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                           consumerNumber = value;
                         });
                       },
+                      controller: cnController,
                       textInputType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Consumer Number",
@@ -145,6 +146,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                           meterReading = value;
                         });
                       },
+                      controller: mrController,
                       textInputType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Meter Reading",
@@ -203,10 +205,10 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       );
                     }),
                   )),
-              // SizedBox(
-              //   height: 2.h,
-              // ),
-              const Spacer(),
+              SizedBox(
+                height: 5.h,
+              ),
+              // const Spacer(),
               Container(
                 alignment: Alignment.center,
                 child: CGradientButton(
@@ -261,7 +263,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
   void addReading() async {
     final createDate = DateFormat("yyyy-MM-dd").format(DateTime.now());
 
-    if (consumerNumber.isEmpty) {
+    if (cnController.text.isEmpty) {
       Get.showSnackbar(errorSnackBar('Please enter Consumer Number'));
       return;
     }
@@ -269,7 +271,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
       Get.showSnackbar(errorSnackBar('Please take photo of meter'));
       return;
     }
-    if (meterReading.isEmpty) {
+    if (mrController.text.isEmpty) {
       Get.showSnackbar(errorSnackBar('Please enter Meter Reading'));
       return;
     }
@@ -297,20 +299,34 @@ class _NewReadingPageState extends State<NewReadingPage> {
     final meterReadingRecord = MeterReadingRecord(
         deviceId: DataConstants.uniqueId,
         scanDate: DateTime.now().toString(),
-        meterReading: int.parse(meterReading),
-        barcode: int.parse(consumerNumber),
+        meterReading: meterReading,
+        barcode: consumerNumber,
         miterNumber: consumerNumber.toString(),
-        userID: int.parse(DataConstants.userID),
-        branchID: int.parse(DataConstants.branchID),
+        userID: DataConstants.userID,
+        branchID: DataConstants.branchID,
         latitude: "19.78",
         longitude: "28.63",
         locationName: null,
         imageBase64: imagebase64,
-        meterStatus: meterStatus,
+        meterStatus: meterStatus.toString(),
         meterImage: meterReadingImage!.path,
         uploadStatus: "No");
-    DataConstants.meterReadingControllerMobx
+    var success = await DataConstants.meterReadingControllerMobx
         .saveMeterReading(meterReadingRecord);
+    if (success) {
+      consumerNumber = '';
+      meterReading = '';
+      cnController.clear();
+      mrController.clear();
+      meterStatus = 1;
+      selectedStatusValue = "1";
+      meterReadingImage = null;
+      setState(() {});
+      Get.showSnackbar(successSnackBar('Record saved successfully'));
+    } else {
+      Get.showSnackbar(
+          errorSnackBar('Failed to save record. Please try again'));
+    }
     debugPrint(
         DataConstants.meterReadingControllerMobx.getConnections().toString());
   }

@@ -13,7 +13,8 @@ abstract class _AllEntriesControllerMobxBase with Store {
   bool selectedConnectionsLoader = false;
   @observable
   bool uploadEntryLoader = false;
-
+  @observable
+  int remainingUploads = 0;
   @observable
   List<MeterReadingRecord> allconnections = [];
   @observable
@@ -22,15 +23,27 @@ abstract class _AllEntriesControllerMobxBase with Store {
   @action
   void updateAllConnections(List<MeterReadingRecord> data) {
     allconnections.clear();
+    remainingUploads = 0;
     allconnections = data;
+    allconnections.forEach((e) {
+      if (e.uploadStatus == "No") {
+        remainingUploads += 1;
+      }
+    });
   }
 
   @action
   Future<void> getallconnections() async {
     selectedConnectionsLoader = true;
     allconnections.clear();
+    remainingUploads = 0;
     allconnections =
         await DataConstants.meterReadingControllerMobx.getConnections();
+    allconnections.forEach((e) {
+      if (e.uploadStatus == "No") {
+        remainingUploads += 1;
+      }
+    });
     selectedConnectionsLoader = false;
   }
 
@@ -38,8 +51,14 @@ abstract class _AllEntriesControllerMobxBase with Store {
   Future<void> getstatuswiseconnections(int index) async {
     selectedConnectionsLoader = true;
     allconnections.clear();
+    remainingUploads = 0;
     allconnections = await DataConstants.meterReadingControllerMobx
         .getAllMeterReadingsByMeterStatus(index);
+    allconnections.forEach((e) {
+      if (e.uploadStatus == "No") {
+        remainingUploads += 1;
+      }
+    });
     selectedConnectionsLoader = false;
   }
 

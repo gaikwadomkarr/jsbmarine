@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get/get.dart';
 import 'package:jsbmarineversion1/screens/main_screen.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
@@ -85,12 +86,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 10.h,
                 ),
-                CGradientButton(
-                  buttonName: "LOGIN",
-                  color: primaryColor,
-                  height: 7.h,
-                  onPress: callLoginApi,
-                )
+                Observer(builder: (context) {
+                  return CGradientButton(
+                    buttonName:
+                        DataConstants.loginControllerMobx.showLoginLoader
+                            ? ""
+                            : "LOGIN",
+                    color: primaryColor,
+                    height: 7.h,
+                    onPress: DataConstants.loginControllerMobx.showLoginLoader
+                        ? null
+                        : callLoginApi,
+                    icon: DataConstants.loginControllerMobx.showLoginLoader
+                        ? const CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: white,
+                          )
+                        : null,
+                  );
+                })
               ],
             ),
           ),
