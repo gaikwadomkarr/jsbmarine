@@ -205,10 +205,7 @@ class _AllEntriesState extends State<AllEntries> {
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                 margin: EdgeInsets.only(right: 2.w),
                 decoration: BoxDecoration(
-                  color: selectedStatus ==
-                          (selectedStatus == 9 ? index + 1 : index)
-                      ? primaryColor
-                      : grey,
+                  color: selectedStatus == index ? primaryColor : grey,
                   borderRadius: BorderRadius.circular(2.w),
                 ),
                 alignment: Alignment.center,

@@ -5,8 +5,11 @@ import 'dart:math';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_icons_null_safety/flutter_icons_null_safety.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:intl/intl.dart';
 import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
@@ -81,7 +84,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                 height: 1.h,
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.h),
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.h),
                 // margin: EdgeInsets.symmetric(horizontal: 5.w),
                 decoration: BoxDecoration(
                     color: white, borderRadius: BorderRadius.circular(3.w)),
@@ -98,6 +101,29 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       textInputType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Consumer Number",
+                      maxLength: 20,
+                      style: Controller.buttonText(context)
+                          .copyWith(fontSize: 20.sp),
+                      hintTextStyle: Controller.hintTextStyle(context)
+                          .copyWith(fontSize: 20.sp),
+                      suffixIcon: GestureDetector(
+                        onTap: () async {
+                          String barcodeScanRes =
+                              await FlutterBarcodeScanner.scanBarcode(
+                                  '#ff6666', 'CANCEL', true, ScanMode.BARCODE);
+
+                          if (barcodeScanRes != '') {
+                            setState(() {
+                              cnController.text = barcodeScanRes;
+                            });
+                          }
+                        },
+                        child: Icon(
+                          FlutterIcons.barcode_scan_mco,
+                          color: primaryColor,
+                          size: 23.sp,
+                        ),
+                      ),
                       textfieldBorder: UnderlineInputBorder(
                           borderRadius: BorderRadius.circular(2.h)),
                     ),
@@ -134,7 +160,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                           backgroundColor: grey,
                           child: Icon(
                             Icons.photo_camera,
-                            color: white,
+                            color: white.withOpacity(0.5),
                             size: 10.w,
                           ),
                         ),
@@ -150,6 +176,11 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       textInputType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Meter Reading",
+                      maxLength: 10,
+                      style: Controller.buttonText(context)
+                          .copyWith(fontSize: 20.sp),
+                      hintTextStyle: Controller.hintTextStyle(context)
+                          .copyWith(fontSize: 20.sp),
                       textfieldBorder: UnderlineInputBorder(
                           borderRadius: BorderRadius.circular(2.h)),
                     ),
@@ -228,14 +259,36 @@ class _NewReadingPageState extends State<NewReadingPage> {
   }
 
   void getImage() async {
-    if (consumerNumber.isEmpty) {
+    if (cnController.text.isEmpty) {
       Get.showSnackbar(errorSnackBar('Please enter Consumer number'));
       return;
     }
     var image = await Controller.imgFromCamera(context);
     if (image != null) {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        cropStyle: CropStyle.circle,
+        sourcePath: image.path,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.original,
+        ],
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+              toolbarTitle: 'Cropper',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false),
+          IOSUiSettings(
+            title: 'Cropper',
+          ),
+          WebUiSettings(
+            context: context,
+          ),
+        ],
+      );
       setState(() {
-        meterReadingImage = image;
+        meterReadingImage = File(croppedFile!.path);
       });
       pngByteData = await meterReadingImage!.readAsBytes();
       imagebase64 = base64Encode(pngByteData);

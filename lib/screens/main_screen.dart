@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_icons_null_safety/flutter_icons_null_safety.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
+import 'package:get/get.dart';
 import 'package:jsbmarineversion1/screens/all_entries.dart';
 import 'package:jsbmarineversion1/screens/new_reading.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
 import 'package:jsbmarineversion1/utils/controller.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
 import 'package:jsbmarineversion1/utils/save_local_storage.dart';
+import 'package:jsbmarineversion1/utils/snackbars.dart';
 import 'package:jsbmarineversion1/utils/string_constant.dart';
+import 'package:jsbmarineversion1/widgets/c_gradient_button.dart';
 import 'package:sizer/sizer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -32,12 +36,80 @@ class _MainScreenState extends State<MainScreen> {
             appBarHeight: 7.h,
             appBarColor: primaryColor,
             drawerIconColor: white,
-            appBarPadding: const EdgeInsets.symmetric(vertical: 0),
+            isTitleCenter: true,
+            appBarPadding: EdgeInsets.symmetric(vertical: 0.w),
             title: Text(
               DataConstants.homePageController.homePageTitle,
               style:
                   Controller.kblackNormalStyle(context).copyWith(color: white),
             ),
+            trailing: DataConstants.currentPage == 1
+                ? Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (DataConstants.allEntriesControllerMobx
+                              .selectedConnections.isEmpty) {
+                            Get.showSnackbar(
+                                errorSnackBar('Please select records first'));
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: white,
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'CONFIRM',
+                                      style: Controller.buttonText(context),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Icon(
+                                        FlutterIcons.close_mco,
+                                        color: Colors.red,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                content: Text(
+                                  'Selected records will be deleted forever.',
+                                  style:
+                                      Controller.kblackSemiNormalStyle(context),
+                                ),
+                                actions: [
+                                  CGradientButton(
+                                    buttonName: 'Cancel',
+                                    onPress: () => Navigator.pop(context),
+                                    color: shade3,
+                                  ),
+                                  CGradientButton(
+                                    buttonName: 'Delete',
+                                    onPress: () {},
+                                    color: Colors.red,
+                                  ),
+                                ],
+                                actionsAlignment: MainAxisAlignment.spaceEvenly,
+                              ),
+                              barrierDismissible: false,
+                            );
+                          }
+                        },
+                        child: Icon(
+                          FlutterIcons.delete_mdi,
+                          size: 18.sp,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 2.w,
+                      )
+                    ],
+                  )
+                : null,
           ),
           slider: Container(
             color: shade3,
