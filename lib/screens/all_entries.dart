@@ -29,6 +29,9 @@ class _AllEntriesState extends State<AllEntries> {
   void initState() {
     super.initState();
     getConnections();
+    if (DataConstants.branchName == "") {
+      DataConstants.mobxApiCalls.getBranchDetails();
+    }
   }
 
   void getConnections() async {
@@ -69,18 +72,36 @@ class _AllEntriesState extends State<AllEntries> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Observer(builder: (context) {
+                        //   return
+                        DataConstants.loginControllerMobx.showGetBranchLoader
+                            ? SizedBox(
+                                height: 3.h,
+                                width: 3.h,
+                                child: const CircularProgressIndicator(
+                                  backgroundColor: primaryColor,
+                                  strokeWidth: 4,
+                                ),
+                              )
+                            : Text(
+                                "Branch - ${DataConstants.branchName}",
+                                style:
+                                    Controller.kwhiteSmallStyle(context, white),
+                              ),
+                        // }),
+                        SizedBox(
+                          height: 1.h,
+                        ),
                         Text(
                           "Total Entries - ${DataConstants.allEntriesControllerMobx.allconnections.length}",
-                          style: Controller.kwhiteSemiBoldNormalStyle(
-                              context, white),
+                          style: Controller.kwhiteSmallStyle(context, white),
                         ),
                         SizedBox(
                           height: 1.h,
                         ),
                         Text(
                           "Remaining Entries - ${DataConstants.allEntriesControllerMobx.remainingUploads}",
-                          style: Controller.kwhiteSemiBoldNormalStyle(
-                              context, white),
+                          style: Controller.kwhiteSmallStyle(context, white),
                         ),
                       ],
                     ),
@@ -96,77 +117,58 @@ class _AllEntriesState extends State<AllEntries> {
                       ? const CircularProgressIndicator()
                       : buildMeterRecord(),
                   Observer(builder: (context) {
-                    return DataConstants.allEntriesControllerMobx
-                            .selectedConnections.isNotEmpty
-                        ? Container(
-                            margin: EdgeInsets.symmetric(horizontal: 5.w),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                if (DataConstants
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 5.w),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          IgnorePointer(
+                            ignoring: DataConstants.allEntriesControllerMobx
+                                .selectedConnections.isEmpty,
+                            child: CGradientButton(
+                                buttonName: DataConstants
                                         .allEntriesControllerMobx
-                                        .selectedConnections
-                                        .first
-                                        .uploadStatus ==
-                                    "No")
-                                  CGradientButton(
-                                      buttonName: DataConstants
-                                              .allEntriesControllerMobx
-                                              .uploadEntryLoader
-                                          ? ''
-                                          : 'Upload',
-                                      onPress: DataConstants
-                                              .allEntriesControllerMobx
-                                              .uploadEntryLoader
-                                          ? null
-                                          : () {
-                                              uploadEntry(DataConstants
-                                                  .allEntriesControllerMobx
-                                                  .selectedConnections
-                                                  .first
-                                                  .id!);
-                                            },
-                                      color: primaryColor,
-                                      icon: DataConstants
-                                              .allEntriesControllerMobx
-                                              .uploadEntryLoader
-                                          ? const CircularProgressIndicator(
-                                              strokeWidth: 3,
-                                              color: white,
-                                            )
-                                          : null),
-                                CGradientButton(
-                                  buttonName: 'Delete',
-                                  onPress: () async {
-                                    var success = await DataConstants
-                                        .meterReadingControllerMobx
-                                        .deleteMeterReading(
-                                            DataConstants
-                                                .allEntriesControllerMobx
-                                                .selectedConnections
-                                                .first
-                                                .id!,
-                                            selectedStatus);
-                                    if (success) {
-                                      DataConstants.allEntriesControllerMobx
-                                          .removeSelectedRecord(DataConstants
-                                              .allEntriesControllerMobx
-                                              .selectedConnections
-                                              .first);
-                                      Get.showSnackbar(successSnackBar(
-                                          'Record deleted successfully'));
-                                    } else {
-                                      // Get.showSnackbar(errorSnackBar(
-                                      //     'Failed. Please try again later'));
-                                    }
-                                  },
-                                  color: Colors.red,
-                                ),
-                              ],
+                                        .uploadEntryLoader
+                                    ? ''
+                                    : 'Upload',
+                                onPress: DataConstants.allEntriesControllerMobx
+                                        .uploadEntryLoader
+                                    ? null
+                                    : () {
+                                        uploadEntry(DataConstants
+                                            .allEntriesControllerMobx
+                                            .selectedConnections
+                                            .first
+                                            .id!);
+                                      },
+                                color: DataConstants.allEntriesControllerMobx
+                                        .selectedConnections.isEmpty
+                                    ? grey
+                                    : primaryColor,
+                                icon: DataConstants.allEntriesControllerMobx
+                                        .uploadEntryLoader
+                                    ? const CircularProgressIndicator(
+                                        strokeWidth: 3,
+                                        color: white,
+                                      )
+                                    : null),
+                          ),
+                          IgnorePointer(
+                            ignoring: DataConstants.allEntriesControllerMobx
+                                .selectedConnections.isEmpty,
+                            child: CGradientButton(
+                              buttonName: 'Reload',
+                              onPress: () async {},
+                              color: DataConstants.allEntriesControllerMobx
+                                      .selectedConnections.isEmpty
+                                  ? grey
+                                  : primaryColor,
                             ),
-                          )
-                        : const SizedBox.shrink();
+                          ),
+                        ],
+                      ),
+                    );
                   }),
                   SizedBox(
                     height: 1.h,
@@ -253,8 +255,6 @@ class _AllEntriesState extends State<AllEntries> {
                             DataConstants.allEntriesControllerMobx
                                 .removeSelectedRecord(meterReadingRecord);
                           } else {
-                            DataConstants.allEntriesControllerMobx
-                                .emptyselectedRecord();
                             DataConstants.allEntriesControllerMobx
                                 .addSelectedRecord(meterReadingRecord);
                           }

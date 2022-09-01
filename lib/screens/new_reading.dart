@@ -102,8 +102,8 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Consumer Number",
                       maxLength: 20,
-                      style: Controller.buttonText(context)
-                          .copyWith(fontSize: 20.sp),
+                      style: Controller.buttonText(context).copyWith(
+                          fontSize: 20.sp, fontWeight: FontWeight.w400),
                       hintTextStyle: Controller.hintTextStyle(context)
                           .copyWith(fontSize: 20.sp),
                       suffixIcon: GestureDetector(
@@ -177,8 +177,8 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       hint_text: "Meter Reading",
                       maxLength: 10,
-                      style: Controller.buttonText(context)
-                          .copyWith(fontSize: 20.sp),
+                      style: Controller.buttonText(context).copyWith(
+                          fontSize: 20.sp, fontWeight: FontWeight.w400),
                       hintTextStyle: Controller.hintTextStyle(context)
                           .copyWith(fontSize: 20.sp),
                       textfieldBorder: UnderlineInputBorder(

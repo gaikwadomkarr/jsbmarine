@@ -25,6 +25,22 @@ mixin _$LoginControllerMobx on _LoginControllerMobxBase, Store {
     });
   }
 
+  late final _$showGetBranchLoaderAtom = Atom(
+      name: '_LoginControllerMobxBase.showGetBranchLoader', context: context);
+
+  @override
+  bool get showGetBranchLoader {
+    _$showGetBranchLoaderAtom.reportRead();
+    return super.showGetBranchLoader;
+  }
+
+  @override
+  set showGetBranchLoader(bool value) {
+    _$showGetBranchLoaderAtom.reportWrite(value, super.showGetBranchLoader, () {
+      super.showGetBranchLoader = value;
+    });
+  }
+
   late final _$loginDetailsAtom =
       Atom(name: '_LoginControllerMobxBase.loginDetails', context: context);
 
@@ -57,6 +73,14 @@ mixin _$LoginControllerMobx on _LoginControllerMobxBase, Store {
     });
   }
 
+  late final _$getBranchNameAsyncAction =
+      AsyncAction('_LoginControllerMobxBase.getBranchName', context: context);
+
+  @override
+  Future<String> getBranchName(List<dynamic> data) {
+    return _$getBranchNameAsyncAction.run(() => super.getBranchName(data));
+  }
+
   late final _$_LoginControllerMobxBaseActionController =
       ActionController(name: '_LoginControllerMobxBase', context: context);
 
@@ -86,6 +110,7 @@ mixin _$LoginControllerMobx on _LoginControllerMobxBase, Store {
   String toString() {
     return '''
 showLoginLoader: ${showLoginLoader},
+showGetBranchLoader: ${showGetBranchLoader},
 loginDetails: ${loginDetails},
 userDetails: ${userDetails}
     ''';

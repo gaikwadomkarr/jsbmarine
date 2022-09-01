@@ -126,4 +126,28 @@ class MobxApiCalls {
       }
     }
   }
+
+  void getBranchDetails() async {
+    DataConstants.loginControllerMobx.showGetBranchLoader = true;
+    String url = insertSingleBill;
+    try {
+      var response = await ApiBasicCalls().getDio('json').post(url);
+      log(response.requestOptions.baseUrl);
+      if (response.statusCode == 200) {
+        log(response.data.toString());
+        DataConstants.loginControllerMobx.showGetBranchLoader = false;
+        DataConstants.branchName = await DataConstants.loginControllerMobx
+            .getBranchName(response.data as List);
+      } else {
+        DataConstants.loginControllerMobx.showGetBranchLoader = false;
+        Get.showSnackbar(errorSnackBar(response.data['error_description']));
+      }
+    } on DioError catch (e) {
+      DataConstants.loginControllerMobx.showGetBranchLoader = false;
+      Get.showSnackbar(errorSnackBar(e.response!.data['Message']));
+      if (e.response!.data.toString().contains('denied')) {
+        Get.offAll(LoginScreen());
+      }
+    }
+  }
 }

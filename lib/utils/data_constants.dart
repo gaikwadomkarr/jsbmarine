@@ -20,6 +20,7 @@ class DataConstants {
   static String uniqueId = "";
   static String username = "";
   static String branchID = "";
+  static String branchName = "";
   static String userID = "";
   static int currentPage = 0;
 

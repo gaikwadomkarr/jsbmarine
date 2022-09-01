@@ -89,7 +89,29 @@ class _MainScreenState extends State<MainScreen> {
                                   ),
                                   CGradientButton(
                                     buttonName: 'Delete',
-                                    onPress: () {},
+                                    onPress: () async {
+                                      var success = await DataConstants
+                                          .meterReadingControllerMobx
+                                          .deleteMeterReading(
+                                              DataConstants
+                                                  .allEntriesControllerMobx
+                                                  .selectedConnections
+                                                  .first
+                                                  .id!,
+                                              0);
+                                      if (success) {
+                                        DataConstants.allEntriesControllerMobx
+                                            .removeSelectedRecord(DataConstants
+                                                .allEntriesControllerMobx
+                                                .selectedConnections
+                                                .first);
+                                        Get.showSnackbar(successSnackBar(
+                                            'Record deleted successfully'));
+                                      } else {
+                                        // Get.showSnackbar(errorSnackBar(
+                                        //     'Failed. Please try again later'));
+                                      }
+                                    },
                                     color: Colors.red,
                                   ),
                                 ],

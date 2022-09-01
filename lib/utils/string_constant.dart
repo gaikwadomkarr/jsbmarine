@@ -10,13 +10,14 @@ String REFRESH_TOKEN = "";
 String REFRESH_TOKEN_EXPIRES = "";
 String FILE_URL = "";
 // String BASEURL = DataConstants.url;
-const String BASEURL = "https://webbillingapi.jsbmarine.com";
+const String BASEURL = "https://mjpbillingapi.jsbmarine.com";
 // const String BASEURL="https://dev-api.core.primepg.penpenny.xyz/";
 
 //const String singInUrl="/auth/signin";
 const String singInUrl = "/Token";
 const String checkTabUser = '/api/v1/Login/CheckTabuser';
 const String insertSingleBill = '/api/v1/Bill/InsertBillEntry';
+const String getBranch = '/api/v1/Branch/GetBranch';
 const String newReading = "New Reading";
 const String allEntries = "All Entries";
 const String logout = "Logout";
