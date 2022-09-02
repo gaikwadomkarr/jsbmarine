@@ -367,14 +367,14 @@ class _NewReadingPageState extends State<NewReadingPage> {
     var success = await DataConstants.meterReadingControllerMobx
         .saveMeterReading(meterReadingRecord);
     if (success) {
-      consumerNumber = '';
-      meterReading = '';
-      cnController.clear();
-      mrController.clear();
-      meterStatus = 1;
-      selectedStatusValue = "1";
-      meterReadingImage = null;
-      setState(() {});
+      // consumerNumber = '';
+      // meterReading = '';
+      // cnController.clear();
+      // mrController.clear();
+      // meterStatus = 1;
+      // selectedStatusValue = "1";
+      // meterReadingImage = null;
+      // setState(() {});
       Get.showSnackbar(successSnackBar('Record saved successfully'));
     } else {
       Get.showSnackbar(

@@ -24,6 +24,7 @@ class AllEntries extends StatefulWidget {
 
 class _AllEntriesState extends State<AllEntries> {
   int selectedStatus = 0;
+  var meterRecords = [];
 
   @override
   void initState() {
@@ -47,6 +48,11 @@ class _AllEntriesState extends State<AllEntries> {
     // });
     DataConstants.allEntriesControllerMobx.selectedConnections.clear();
     log(allconnections.toString());
+  }
+
+  void getNonUploadedRecords() async {
+    meterRecords = await DataConstants.meterReadingControllerMobx
+        .getLimitedMeterReadingsByStatus("No");
   }
 
   @override
@@ -191,23 +197,28 @@ class _AllEntriesState extends State<AllEntries> {
           itemBuilder: ((context, index) {
             return GestureDetector(
               onTap: () async {
-                setState(() {
-                  selectedStatus = int.parse(allmeterStatusNoList[index]);
-                });
-                log(selectedStatus.toString());
+                DataConstants.allEntriesControllerMobx
+                    .setSelectedStatus(int.parse(allmeterStatusNoList[index]));
+                log(DataConstants.allEntriesControllerMobx.selectedStatus
+                    .toString());
                 DataConstants.allEntriesControllerMobx.emptyselectedRecord();
                 if (index == 0) {
                   DataConstants.allEntriesControllerMobx.getallconnections();
                 } else {
                   DataConstants.allEntriesControllerMobx
-                      .getstatuswiseconnections(selectedStatus);
+                      .getstatuswiseconnections(DataConstants
+                          .allEntriesControllerMobx.selectedStatus);
                 }
               },
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
                 margin: EdgeInsets.only(right: 2.w),
                 decoration: BoxDecoration(
-                  color: selectedStatus == index ? primaryColor : grey,
+                  color:
+                      DataConstants.allEntriesControllerMobx.selectedStatus ==
+                              index
+                          ? primaryColor
+                          : grey,
                   borderRadius: BorderRadius.circular(2.w),
                 ),
                 alignment: Alignment.center,
@@ -330,7 +341,8 @@ class _AllEntriesState extends State<AllEntries> {
     // return;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
-        DataConstants.mobxApiCalls.uploadEntry(data, id, selectedStatus);
+        DataConstants.mobxApiCalls.uploadEntry(
+            data, id, DataConstants.allEntriesControllerMobx.selectedStatus);
       } else {
         Get.showSnackbar(errorSnackBar('No Internet Connection'));
       }

@@ -71,6 +71,57 @@ abstract class _MeterReadingControllerBase with Store {
   }
 
   @action
+  Future<bool> deleteMultipleMeterReading(int meterStatus) async {
+    var client = meterReadingDB;
+    int success = 0;
+    int count = 0;
+    for (var element
+        in DataConstants.allEntriesControllerMobx.selectedConnections) {
+      await client!.delete("MeterReadings",
+          where: "id = ?", whereArgs: [element.id]).then((value) {
+        log('delete status $value');
+        count++;
+      }).catchError((onError) {
+        log(onError.toString());
+      }).onError((error, stackTrace) {
+        Get.showSnackbar(errorSnackBar(error.toString()));
+      });
+    }
+
+    if (count ==
+        DataConstants.allEntriesControllerMobx.selectedConnections.length) {
+      success = 1;
+    }
+
+    if (success == 1) {
+      log("entry made to database");
+      if (meterStatus == 0) {
+        DataConstants.allEntriesControllerMobx.allconnections =
+            await getConnections();
+      } else {
+        DataConstants.allEntriesControllerMobx.allconnections =
+            await getAllMeterReadingsByMeterStatus(meterStatus);
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @action
+  Future<bool> recordExists(MeterReadingRecord meterReadingRecord) async {
+    final client = meterReadingDB;
+    var exists = false;
+    await client!.query("MeterReadings",
+        where: "id= ?", whereArgs: [meterReadingRecord.id]).then((value) {
+      if (value.isNotEmpty) {
+        exists = true;
+      }
+    });
+    return exists;
+  }
+
+  @action
   Future<List<MeterReadingRecord>> getConnections() async {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList =
@@ -130,6 +181,33 @@ abstract class _MeterReadingControllerBase with Store {
     final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
         "SELECT * from MeterReadings WHERE meterStatus='$meterStatus'");
     log(connectionList.toString());
+    return List.generate(connectionList.length, (i) {
+      return MeterReadingRecord(
+        id: connectionList[i]['id'],
+        deviceId: connectionList[i]['deviceId'],
+        scanDate: connectionList[i]['scanDate'],
+        meterReading: connectionList[i]['meterReading'],
+        barcode: connectionList[i]['barcode'],
+        miterNumber: connectionList[i]['miterNumber'].toString(),
+        userID: connectionList[i]['userID'],
+        branchID: connectionList[i]['branchID'],
+        locationName: connectionList[i]['locationName'],
+        imageBase64: connectionList[i]['imageBase64'],
+        meterImage: connectionList[i]['meterImage'],
+        meterStatus: connectionList[i]['meterStatus'],
+        uploadStatus: connectionList[i]['uploadStatus'],
+        latitude: connectionList[i]['latitude'],
+        longitude: connectionList[i]['longitude'],
+      );
+    });
+  }
+
+  @action
+  Future<List<MeterReadingRecord>> getLimitedMeterReadingsByStatus(
+      status) async {
+    final client = meterReadingDB;
+    final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
+        "SELECT * from MeterReadings WHERE uploadStatus='$status' LIMIT 25");
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],

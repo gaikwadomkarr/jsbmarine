@@ -92,22 +92,20 @@ class _MainScreenState extends State<MainScreen> {
                                     onPress: () async {
                                       var success = await DataConstants
                                           .meterReadingControllerMobx
-                                          .deleteMeterReading(
+                                          .deleteMultipleMeterReading(
                                               DataConstants
                                                   .allEntriesControllerMobx
-                                                  .selectedConnections
-                                                  .first
-                                                  .id!,
-                                              0);
+                                                  .selectedStatus);
                                       if (success) {
                                         DataConstants.allEntriesControllerMobx
-                                            .removeSelectedRecord(DataConstants
+                                            .removeMultipleRecord(DataConstants
                                                 .allEntriesControllerMobx
-                                                .selectedConnections
-                                                .first);
+                                                .selectedConnections);
                                         Get.showSnackbar(successSnackBar(
                                             'Record deleted successfully'));
+                                        Navigator.pop(context);
                                       } else {
+                                        Navigator.pop(context);
                                         // Get.showSnackbar(errorSnackBar(
                                         //     'Failed. Please try again later'));
                                       }

@@ -129,7 +129,7 @@ class MobxApiCalls {
 
   void getBranchDetails() async {
     DataConstants.loginControllerMobx.showGetBranchLoader = true;
-    String url = insertSingleBill;
+    String url = getBranch;
     try {
       var response = await ApiBasicCalls().getDio('json').post(url);
       log(response.requestOptions.baseUrl);

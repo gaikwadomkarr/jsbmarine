@@ -78,6 +78,22 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
     });
   }
 
+  late final _$selectedStatusAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.selectedStatus', context: context);
+
+  @override
+  int get selectedStatus {
+    _$selectedStatusAtom.reportRead();
+    return super.selectedStatus;
+  }
+
+  @override
+  set selectedStatus(int value) {
+    _$selectedStatusAtom.reportWrite(value, super.selectedStatus, () {
+      super.selectedStatus = value;
+    });
+  }
+
   late final _$allconnectionsAtom = Atom(
       name: '_AllEntriesControllerMobxBase.allconnections', context: context);
 
@@ -130,6 +146,17 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
         .run(() => super.getstatuswiseconnections(index));
   }
 
+  late final _$removeMultipleRecordAsyncAction = AsyncAction(
+      '_AllEntriesControllerMobxBase.removeMultipleRecord',
+      context: context);
+
+  @override
+  Future<void> removeMultipleRecord(
+      List<MeterReadingRecord> meterReadingRecords) {
+    return _$removeMultipleRecordAsyncAction
+        .run(() => super.removeMultipleRecord(meterReadingRecords));
+  }
+
   late final _$_AllEntriesControllerMobxBaseActionController =
       ActionController(name: '_AllEntriesControllerMobxBase', context: context);
 
@@ -140,6 +167,17 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
             name: '_AllEntriesControllerMobxBase.updateAllConnections');
     try {
       return super.updateAllConnections(data);
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setSelectedStatus(dynamic status) {
+    final _$actionInfo = _$_AllEntriesControllerMobxBaseActionController
+        .startAction(name: '_AllEntriesControllerMobxBase.setSelectedStatus');
+    try {
+      return super.setSelectedStatus(status);
     } finally {
       _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
     }
@@ -186,6 +224,7 @@ allConnectionsLoader: ${allConnectionsLoader},
 selectedConnectionsLoader: ${selectedConnectionsLoader},
 uploadEntryLoader: ${uploadEntryLoader},
 remainingUploads: ${remainingUploads},
+selectedStatus: ${selectedStatus},
 allconnections: ${allconnections},
 selectedConnections: ${selectedConnections}
     ''';

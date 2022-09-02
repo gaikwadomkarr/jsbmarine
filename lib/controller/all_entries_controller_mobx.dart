@@ -16,6 +16,8 @@ abstract class _AllEntriesControllerMobxBase with Store {
   @observable
   int remainingUploads = 0;
   @observable
+  int selectedStatus = 0;
+  @observable
   List<MeterReadingRecord> allconnections = [];
   @observable
   List<MeterReadingRecord> selectedConnections = ObservableList();
@@ -63,8 +65,25 @@ abstract class _AllEntriesControllerMobxBase with Store {
   }
 
   @action
+  void setSelectedStatus(var status) {
+    selectedStatus = status;
+  }
+
+  @action
   void addSelectedRecord(MeterReadingRecord meterReadingRecord) {
     selectedConnections.add(meterReadingRecord);
+  }
+
+  @action
+  Future<void> removeMultipleRecord(
+      List<MeterReadingRecord> meterReadingRecords) async {
+    meterReadingRecords.forEach((element) async {
+      var exists =
+          await DataConstants.meterReadingControllerMobx.recordExists(element);
+      if (exists) {
+        selectedConnections.remove(element);
+      }
+    });
   }
 
   @action

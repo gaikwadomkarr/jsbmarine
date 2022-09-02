@@ -61,6 +61,25 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
         .run(() => super.deleteMeterReading(id, meterStatus));
   }
 
+  late final _$deleteMultipleMeterReadingAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.deleteMultipleMeterReading',
+      context: context);
+
+  @override
+  Future<bool> deleteMultipleMeterReading(int meterStatus) {
+    return _$deleteMultipleMeterReadingAsyncAction
+        .run(() => super.deleteMultipleMeterReading(meterStatus));
+  }
+
+  late final _$recordExistsAsyncAction =
+      AsyncAction('_MeterReadingControllerBase.recordExists', context: context);
+
+  @override
+  Future<bool> recordExists(MeterReadingRecord meterReadingRecord) {
+    return _$recordExistsAsyncAction
+        .run(() => super.recordExists(meterReadingRecord));
+  }
+
   late final _$getConnectionsAsyncAction = AsyncAction(
       '_MeterReadingControllerBase.getConnections',
       context: context);
@@ -89,6 +108,17 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
       int meterStatus) {
     return _$getAllMeterReadingsByMeterStatusAsyncAction
         .run(() => super.getAllMeterReadingsByMeterStatus(meterStatus));
+  }
+
+  late final _$getLimitedMeterReadingsByStatusAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.getLimitedMeterReadingsByStatus',
+      context: context);
+
+  @override
+  Future<List<MeterReadingRecord>> getLimitedMeterReadingsByStatus(
+      dynamic status) {
+    return _$getLimitedMeterReadingsByStatusAsyncAction
+        .run(() => super.getLimitedMeterReadingsByStatus(status));
   }
 
   late final _$deleteMeterRecordAsyncAction = AsyncAction(
