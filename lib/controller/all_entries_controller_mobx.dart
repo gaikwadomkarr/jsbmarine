@@ -14,6 +14,8 @@ abstract class _AllEntriesControllerMobxBase with Store {
   @observable
   bool uploadEntryLoader = false;
   @observable
+  bool reloadEntryLoader = false;
+  @observable
   int remainingUploads = 0;
   @observable
   int selectedStatus = 0;

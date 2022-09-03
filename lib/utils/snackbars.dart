@@ -30,7 +30,7 @@ GetSnackBar errorSnackBar(String message) {
   );
 }
 
-GetSnackBar successSnackBar(String message) {
+GetSnackBar successSnackBar(String message, {int duration = 1}) {
   return GetSnackBar(
     mainButton: InkWell(
       onTap: () => Get.back(),
@@ -45,6 +45,9 @@ GetSnackBar successSnackBar(String message) {
     margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
     snackPosition: SnackPosition.TOP,
     borderRadius: 5,
+    isDismissible: true,
+    animationDuration: const Duration(milliseconds: 300),
+    dismissDirection: DismissDirection.horizontal,
     messageText: Text(
       message,
       style: const TextStyle(color: Colors.green),

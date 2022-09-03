@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -124,6 +125,63 @@ class MobxApiCalls {
       if (e.response!.data.toString().contains('denied')) {
         Get.offAll(LoginScreen());
       }
+    }
+  }
+
+  Future<bool> uploadBulkEntry(
+      var data, List<MeterReadingRecord> meterRecords, int selectedStatus,
+      {bool isReload = false}) async {
+    if (isReload) {
+      DataConstants.allEntriesControllerMobx.reloadEntryLoader = true;
+    } else {
+      DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
+    }
+    String url = insertBulkBill;
+    try {
+      var response = await ApiBasicCalls().getDio('json').post(url, data: data);
+      log(response.requestOptions.baseUrl);
+      if (response.statusCode == 200) {
+        log("upload response =>" + jsonEncode(response.data));
+        await DataConstants.meterReadingControllerMobx
+            .updateBulkMeterReading(meterRecords);
+        DataConstants.allEntriesControllerMobx.selectedConnections.clear();
+        List<MeterReadingRecord> connections;
+        if (selectedStatus == 0) {
+          connections =
+              await DataConstants.meterReadingControllerMobx.getConnections();
+        } else {
+          connections = await DataConstants.meterReadingControllerMobx
+              .getAllMeterReadingsByMeterStatus(selectedStatus);
+        }
+        DataConstants.allEntriesControllerMobx
+            .updateAllConnections(connections);
+        if (isReload) {
+          DataConstants.allEntriesControllerMobx.reloadEntryLoader = false;
+        } else {
+          DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        }
+        // Get.showSnackbar(successSnackBar("Record uploaded"));
+        return true;
+      } else {
+        if (isReload) {
+          DataConstants.allEntriesControllerMobx.reloadEntryLoader = false;
+        } else {
+          DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        }
+        Get.showSnackbar(errorSnackBar(response.data['error_description']));
+        return false;
+      }
+    } on DioError catch (e) {
+      if (isReload) {
+        DataConstants.allEntriesControllerMobx.reloadEntryLoader = false;
+      } else {
+        DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+      }
+      Get.showSnackbar(errorSnackBar(e.response!.data['Message']));
+      if (e.response!.data.toString().contains('denied')) {
+        Get.offAll(LoginScreen());
+      }
+      return false;
     }
   }
 

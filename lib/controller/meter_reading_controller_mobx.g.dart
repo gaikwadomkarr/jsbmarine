@@ -141,6 +141,16 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
         .run(() => super.updateMeterReading(id, data));
   }
 
+  late final _$updateBulkMeterReadingAsyncAction = AsyncAction(
+      '_MeterReadingControllerBase.updateBulkMeterReading',
+      context: context);
+
+  @override
+  Future<bool> updateBulkMeterReading(List<MeterReadingRecord> meterRecords) {
+    return _$updateBulkMeterReadingAsyncAction
+        .run(() => super.updateBulkMeterReading(meterRecords));
+  }
+
   @override
   String toString() {
     return '''

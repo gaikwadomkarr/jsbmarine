@@ -17,6 +17,7 @@ const String BASEURL = "https://mjpbillingapi.jsbmarine.com";
 const String singInUrl = "/Token";
 const String checkTabUser = '/api/v1/Login/CheckTabuser';
 const String insertSingleBill = '/api/v1/Bill/InsertBillEntry';
+const String insertBulkBill = '/api/v1/Bill/InsertBillEntrys';
 const String getBranch = '/api/v1/Branch/GetBranch';
 const String newReading = "New Reading";
 const String allEntries = "All Entries";
@@ -26,7 +27,7 @@ const List<String> meterStatusList = [
   "Normal Billing",
   "Leak",
   "Lock",
-  "Temper",
+  "Tamper",
   "No Use",
   "Meter Stop",
 ];
@@ -35,7 +36,7 @@ const List<String> allmeterStatusList = [
   "Normal Billing",
   "Leak",
   "Lock",
-  "Temper",
+  "Tamper",
   "No Use",
   "Meter Stop",
 ];

@@ -24,15 +24,25 @@ class AllEntries extends StatefulWidget {
 
 class _AllEntriesState extends State<AllEntries> {
   int selectedStatus = 0;
-  var meterRecords = [];
+  List<MeterReadingRecord> meterRecords = [];
+  GlobalKey<NavigatorState> navigatorState = GlobalKey<NavigatorState>();
+  GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     getConnections();
+    getNonUploadedRecords();
     if (DataConstants.branchName == "") {
       DataConstants.mobxApiCalls.getBranchDetails();
     }
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    DataConstants.allEntriesControllerMobx.selectedStatus = 0;
+    super.dispose();
   }
 
   void getConnections() async {
@@ -50,15 +60,17 @@ class _AllEntriesState extends State<AllEntries> {
     log(allconnections.toString());
   }
 
-  void getNonUploadedRecords() async {
+  Future<void> getNonUploadedRecords() async {
     meterRecords = await DataConstants.meterReadingControllerMobx
         .getLimitedMeterReadingsByStatus("No");
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+      key: scaffoldState,
       backgroundColor: shade4,
       body: Observer(builder: (context) {
         return DataConstants.allEntriesControllerMobx.allConnectionsLoader
@@ -68,118 +80,138 @@ class _AllEntriesState extends State<AllEntries> {
                   strokeWidth: 4,
                 ),
               )
-            : Column(
-                children: [
-                  Container(
-                    color: shade2,
-                    width: double.infinity,
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Observer(builder: (context) {
-                        //   return
-                        DataConstants.loginControllerMobx.showGetBranchLoader
-                            ? SizedBox(
-                                height: 3.h,
-                                width: 3.h,
-                                child: const CircularProgressIndicator(
-                                  backgroundColor: primaryColor,
-                                  strokeWidth: 4,
-                                ),
-                              )
-                            : Text(
-                                "Branch - ${DataConstants.branchName}",
-                                style:
-                                    Controller.kwhiteSmallStyle(context, white),
-                              ),
-                        // }),
-                        SizedBox(
-                          height: 1.h,
-                        ),
-                        Text(
-                          "Total Entries - ${DataConstants.allEntriesControllerMobx.allconnections.length}",
-                          style: Controller.kwhiteSmallStyle(context, white),
-                        ),
-                        SizedBox(
-                          height: 1.h,
-                        ),
-                        Text(
-                          "Remaining Entries - ${DataConstants.allEntriesControllerMobx.remainingUploads}",
-                          style: Controller.kwhiteSmallStyle(context, white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 1.h,
-                  ),
-                  buildMeterStatusFilter(),
-                  SizedBox(
-                    height: 2.h,
-                  ),
-                  DataConstants.allEntriesControllerMobx.allConnectionsLoader
-                      ? const CircularProgressIndicator()
-                      : buildMeterRecord(),
-                  Observer(builder: (context) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5.w),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            : IgnorePointer(
+                ignoring:
+                    DataConstants.allEntriesControllerMobx.uploadEntryLoader,
+                child: Column(
+                  children: [
+                    Container(
+                      color: shade2,
+                      width: double.infinity,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IgnorePointer(
-                            ignoring: DataConstants.allEntriesControllerMobx
-                                .selectedConnections.isEmpty,
-                            child: CGradientButton(
-                                buttonName: DataConstants
-                                        .allEntriesControllerMobx
-                                        .uploadEntryLoader
-                                    ? ''
-                                    : 'Upload',
-                                onPress: DataConstants.allEntriesControllerMobx
-                                        .uploadEntryLoader
-                                    ? null
-                                    : () {
-                                        uploadEntry(DataConstants
-                                            .allEntriesControllerMobx
-                                            .selectedConnections
-                                            .first
-                                            .id!);
-                                      },
-                                color: DataConstants.allEntriesControllerMobx
-                                        .selectedConnections.isEmpty
-                                    ? grey
-                                    : primaryColor,
-                                icon: DataConstants.allEntriesControllerMobx
-                                        .uploadEntryLoader
-                                    ? const CircularProgressIndicator(
-                                        strokeWidth: 3,
-                                        color: white,
-                                      )
-                                    : null),
+                          // Observer(builder: (context) {
+                          //   return
+                          DataConstants.loginControllerMobx.showGetBranchLoader
+                              ? SizedBox(
+                                  height: 3.h,
+                                  width: 3.h,
+                                  child: const CircularProgressIndicator(
+                                    backgroundColor: primaryColor,
+                                    strokeWidth: 4,
+                                  ),
+                                )
+                              : Text(
+                                  "Branch - ${DataConstants.branchName}",
+                                  style: Controller.kwhiteSmallStyle(
+                                      context, white),
+                                ),
+                          // }),
+                          SizedBox(
+                            height: 1.h,
                           ),
-                          IgnorePointer(
-                            ignoring: DataConstants.allEntriesControllerMobx
-                                .selectedConnections.isEmpty,
-                            child: CGradientButton(
-                              buttonName: 'Reload',
-                              onPress: () async {},
-                              color: DataConstants.allEntriesControllerMobx
-                                      .selectedConnections.isEmpty
-                                  ? grey
-                                  : primaryColor,
-                            ),
+                          Text(
+                            "Total Entries - ${DataConstants.allEntriesControllerMobx.allconnections.length}",
+                            style: Controller.kwhiteSmallStyle(context, white),
+                          ),
+                          SizedBox(
+                            height: 1.h,
+                          ),
+                          Text(
+                            "Remaining Entries - ${DataConstants.allEntriesControllerMobx.remainingUploads}",
+                            style: Controller.kwhiteSmallStyle(context, white),
                           ),
                         ],
                       ),
-                    );
-                  }),
-                  SizedBox(
-                    height: 1.h,
-                  )
-                ],
+                    ),
+                    SizedBox(
+                      height: 1.h,
+                    ),
+                    buildMeterStatusFilter(),
+                    SizedBox(
+                      height: 2.h,
+                    ),
+                    DataConstants.allEntriesControllerMobx.allConnectionsLoader
+                        ? const CircularProgressIndicator()
+                        : buildMeterRecord(),
+                    Observer(builder: (context) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 5.w),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IgnorePointer(
+                              ignoring: meterRecords.isEmpty,
+                              child: CGradientButton(
+                                  buttonName: DataConstants
+                                          .allEntriesControllerMobx
+                                          .uploadEntryLoader
+                                      ? ''
+                                      : 'Upload',
+                                  onPress: DataConstants
+                                          .allEntriesControllerMobx
+                                          .uploadEntryLoader
+                                      ? null
+                                      : () {
+                                          if (meterRecords.isNotEmpty) {
+                                            uploadEntry();
+                                          } else {
+                                            Get.showSnackbar(errorSnackBar(
+                                                'No records to upload'));
+                                          }
+                                        },
+                                  color: meterRecords.isEmpty
+                                      ? grey
+                                      : primaryColor,
+                                  icon: DataConstants.allEntriesControllerMobx
+                                          .uploadEntryLoader
+                                      ? const CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                          color: white,
+                                        )
+                                      : null),
+                            ),
+                            IgnorePointer(
+                              ignoring: DataConstants.allEntriesControllerMobx
+                                  .selectedConnections.isEmpty,
+                              child: CGradientButton(
+                                  buttonName: DataConstants
+                                          .allEntriesControllerMobx
+                                          .reloadEntryLoader
+                                      ? ''
+                                      : 'Reload',
+                                  onPress: DataConstants
+                                          .allEntriesControllerMobx
+                                          .reloadEntryLoader
+                                      ? null
+                                      : () async {
+                                          reloadEntry();
+                                        },
+                                  color: DataConstants.allEntriesControllerMobx
+                                          .selectedConnections.isEmpty
+                                      ? grey
+                                      : primaryColor,
+                                  icon: DataConstants.allEntriesControllerMobx
+                                          .reloadEntryLoader
+                                      ? const CircularProgressIndicator(
+                                          strokeWidth: 3,
+                                          color: white,
+                                        )
+                                      : null),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    SizedBox(
+                      height: 1.h,
+                    )
+                  ],
+                ),
               );
       }),
     ));
@@ -326,26 +358,174 @@ class _AllEntriesState extends State<AllEntries> {
     });
   }
 
-  void uploadEntry(int id) async {
-    var data = Map<String, dynamic>.from(DataConstants
-        .allEntriesControllerMobx.selectedConnections.first
-        .toJson());
-    String scanDate =
-        DateFormat('MM/dd/yyyy').format(DateTime.parse(data['scanDate']));
-    data.remove("scanDate");
-    data.remove("uploadStatus");
-    data.remove("meterImage");
-    data.remove("id");
-    data.addAll({"scanDate": scanDate});
-    log(data.toString());
+  void reloadEntry() async {
+    DataConstants.allEntriesControllerMobx.reloadEntryLoader = true;
+    List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];
+    // var data = Map<String, dynamic>.from(DataConstants
+    //     .allEntriesControllerMobx.selectedConnections.first
+    //     .toJson());
+    // String scanDate =
+    //     DateFormat('MM/dd/yyyy').format(DateTime.parse(data['scanDate']));
+    // data.remove("scanDate");
+    // data.remove("uploadStatus");
+    // data.remove("meterImage");
+    // data.remove("id");
+    // data.addAll({"scanDate": scanDate});
+
+    for (var element
+        in DataConstants.allEntriesControllerMobx.selectedConnections) {
+      String scanDate =
+          DateFormat('MM/dd/yyyy').format(DateTime.parse(element.scanDate!));
+      final Map<String, dynamic> data = {
+        "deviceId": element.deviceId,
+        "scanDate": scanDate,
+        "meterReading": element.meterReading,
+        "barcode": element.barcode,
+        "miterNumber": element.miterNumber.toString(),
+        "userID": element.userID,
+        "branchID": element.branchID,
+        "locationName": element.locationName,
+        "imageBase64": element.imageBase64,
+        "meterStatus": element.meterStatus,
+        "latitude": element.latitude,
+        "longitude": element.longitude,
+      };
+
+      connections.add(data);
+    }
+    log(jsonEncode(connections));
     // return;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
-        DataConstants.mobxApiCalls.uploadEntry(
-            data, id, DataConstants.allEntriesControllerMobx.selectedStatus);
+        var success = await DataConstants.mobxApiCalls.uploadBulkEntry(
+            connections,
+            meterRecords,
+            DataConstants.allEntriesControllerMobx.selectedStatus,
+            isReload: true);
+
+        if (success) {
+          Get.showSnackbar(successSnackBar('All records has been uploaded'));
+        }
+      } else {
+        Get.showSnackbar(errorSnackBar('No Internet Connection'));
+        DataConstants.allEntriesControllerMobx.reloadEntryLoader = false;
+      }
+    });
+  }
+
+  void uploadEntry() async {
+    DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
+    meterRecords = await DataConstants.meterReadingControllerMobx
+        .getLimitedMeterReadingsByStatus("No");
+    List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];
+    // var data = Map<String, dynamic>.from(DataConstants
+    //     .allEntriesControllerMobx.selectedConnections.first
+    //     .toJson());
+    // String scanDate =
+    //     DateFormat('MM/dd/yyyy').format(DateTime.parse(data['scanDate']));
+    // data.remove("scanDate");
+    // data.remove("uploadStatus");
+    // data.remove("meterImage");
+    // data.remove("id");
+    // data.addAll({"scanDate": scanDate});
+
+    for (var element in meterRecords) {
+      String scanDate =
+          DateFormat('MM/dd/yyyy').format(DateTime.parse(element.scanDate!));
+      final Map<String, dynamic> data = {
+        "deviceId": element.deviceId,
+        "scanDate": scanDate,
+        "meterReading": element.meterReading,
+        "barcode": element.barcode,
+        "miterNumber": element.miterNumber.toString(),
+        "userID": element.userID,
+        "branchID": element.branchID,
+        "locationName": element.locationName,
+        "imageBase64": element.imageBase64,
+        "meterStatus": element.meterStatus,
+        "latitude": element.latitude,
+        "longitude": element.longitude,
+      };
+
+      connections.add(data);
+    }
+    log(jsonEncode(connections));
+    // return;
+    Controller.getInternetStatus().then((value) async {
+      if (value!) {
+        var success = await DataConstants.mobxApiCalls.uploadBulkEntry(
+            connections,
+            meterRecords,
+            DataConstants.allEntriesControllerMobx.selectedStatus);
+
+        if (success) {
+          meterRecords.clear();
+          await getNonUploadedRecords();
+          if (meterRecords.isEmpty) {
+            Get.showSnackbar(successSnackBar('All records has been uploaded'));
+          } else {
+            showNextBatchDialog(
+                "Successful",
+                "Upload Successfull, Continue with next batch",
+                "Ok",
+                "Next Batch");
+          }
+        }
       } else {
         Get.showSnackbar(errorSnackBar('No Internet Connection'));
       }
     });
+  }
+
+  void showNextBatchDialog(
+      String title, String message, String btnText, String btn2Text) {
+    // Get.defaultDialog(
+    //   // navigatorKey: scaffoldState.currentWidget.,
+    //   barrierDismissible: false,
+    //   title: title,
+    //   middleText: message,
+    //   actions: <Widget>[
+    //     TextButton(
+    //       child: Text(btnText),
+    //       onPressed: () {
+    //         Navigator.pop(scaffoldState.currentContext!);
+    //       },
+    //     ),
+    //     TextButton(
+    //       child: Text(btn2Text),
+    //       onPressed: () {
+    //         Navigator.pop(scaffoldState.currentContext!);
+    //         uploadEntry();
+    //       },
+    //     ),
+    //   ],
+    // );
+    showDialog(
+      context: scaffoldState.currentContext!,
+      barrierDismissible: false,
+      useRootNavigator: false,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text(btnText),
+              onPressed: () {
+                Navigator.pop(scaffoldState.currentContext!);
+              },
+            ),
+            TextButton(
+              child: Text(btn2Text),
+              onPressed: () {
+                Navigator.pop(scaffoldState.currentContext!);
+                uploadEntry();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

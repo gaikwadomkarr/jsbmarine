@@ -275,4 +275,31 @@ abstract class _MeterReadingControllerBase with Store {
       return false;
     }
   }
+
+  @action
+  Future<bool> updateBulkMeterReading(
+      List<MeterReadingRecord> meterRecords) async {
+    var client = meterReadingDB;
+    int success = 0;
+    int count = 0;
+    for (var element in meterRecords) {
+      client!
+          .update('MeterReadings', {"uploadStatus": "Yes"},
+              where: "id= ?", whereArgs: [element.id])
+          .then((value) {
+        count++;
+      });
+    }
+
+    print("upload status updated $count");
+
+    if (count == meterRecords.length) {
+      success = 1;
+    }
+    if (success >= 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

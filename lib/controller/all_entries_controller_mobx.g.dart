@@ -50,7 +50,7 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
       context: context);
 
   @override
-  bool get uploadEntryLoader {
+  bool get reloadEntryLoaderuploadEntryLoader {
     _$uploadEntryLoaderAtom.reportRead();
     return super.uploadEntryLoader;
   }
@@ -59,6 +59,23 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
   set uploadEntryLoader(bool value) {
     _$uploadEntryLoaderAtom.reportWrite(value, super.uploadEntryLoader, () {
       super.uploadEntryLoader = value;
+    });
+  }
+
+  late final _$reloadEntryLoaderAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.reloadEntryLoader',
+      context: context);
+
+  @override
+  bool get reloadEntryLoader {
+    _$reloadEntryLoaderAtom.reportRead();
+    return super.reloadEntryLoader;
+  }
+
+  @override
+  set reloadEntryLoader(bool value) {
+    _$reloadEntryLoaderAtom.reportWrite(value, super.reloadEntryLoader, () {
+      super.reloadEntryLoader = value;
     });
   }
 
@@ -223,6 +240,7 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
 allConnectionsLoader: ${allConnectionsLoader},
 selectedConnectionsLoader: ${selectedConnectionsLoader},
 uploadEntryLoader: ${uploadEntryLoader},
+reloadEntryLoader: ${reloadEntryLoader},
 remainingUploads: ${remainingUploads},
 selectedStatus: ${selectedStatus},
 allconnections: ${allconnections},
