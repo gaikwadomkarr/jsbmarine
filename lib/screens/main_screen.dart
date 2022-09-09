@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons_null_safety/flutter_icons_null_safety.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:get/get.dart';
 import 'package:jsbmarineversion1/screens/all_entries.dart';
@@ -36,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
             appBarHeight: 7.h,
             appBarColor: primaryColor,
             drawerIconColor: white,
-            isTitleCenter: true,
+            isTitleCenter: false,
             appBarPadding: EdgeInsets.symmetric(vertical: 0.w),
             title: Text(
               DataConstants.homePageController.homePageTitle,
@@ -125,8 +126,40 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                       SizedBox(
-                        width: 2.w,
-                      )
+                        width: 5.w,
+                      ),
+                      Observer(builder: (context) {
+                        return GestureDetector(
+                          onTap: () {
+                            DataConstants.allEntriesControllerMobx
+                                .setIsAllSelected(!DataConstants
+                                    .allEntriesControllerMobx.isAllSelected);
+                          },
+                          child: Container(
+                            decoration: DataConstants
+                                    .allEntriesControllerMobx.isAllSelected
+                                ? BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20.w),
+                                    color: white,
+                                  )
+                                : null,
+                            child: Icon(
+                              DataConstants
+                                      .allEntriesControllerMobx.isAllSelected
+                                  ? FlutterIcons.check_circle_faw5s
+                                  : FlutterIcons.check_circle_faw5,
+                              size: 20.sp,
+                              color: DataConstants
+                                      .allEntriesControllerMobx.isAllSelected
+                                  ? Colors.green
+                                  : white,
+                            ),
+                          ),
+                        );
+                      }),
+                      SizedBox(
+                        width: 5.w,
+                      ),
                     ],
                   )
                 : null,

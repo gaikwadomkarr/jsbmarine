@@ -216,6 +216,23 @@ class Controller {
     }
   }
 
+  // static Future<File?> takeImage(BuildContext context) async {
+  //   showModalBottomSheet(context: context, builder: Camera);
+  //   if (pickedFile != null) {
+  //     final bytes = await pickedFile.length();
+  //     final kb = bytes / 1024;
+  //     final mb = kb / 1024;
+  //     // log('thiis is imagge size => $mb');
+  //     if (mb > 2) {
+  //       Controller.showErrorToast('Image size should be upto 2 mb', context);
+  //       return null;
+  //     }
+  //     return File(pickedFile.path);
+  //   } else {
+  //     return null;
+  //   }
+  // }
+
   static Future<File> imgFromGallery() async {
     final pickedFile = await ImagePicker()
         .getImage(source: ImageSource.gallery, imageQuality: 25);

@@ -17,20 +17,31 @@ abstract class _MeterReadingControllerBase with Store {
   MeterReadingRecord meterReadingRecord = MeterReadingRecord();
   @observable
   Database? meterReadingDB;
+  @observable
+  bool showSubmitToDBLoader = false;
+
+  @action
+  void setshowSubmitToDBLoader(bool status) {
+    showSubmitToDBLoader = status;
+  }
 
   @action
   Future<bool> saveMeterReading(MeterReadingRecord meterReadingDb) async {
+    showSubmitToDBLoader = true;
     var client = meterReadingDB;
     int success = 0;
     await client!
         .insert('MeterReadings', meterReadingDb.toJson(),
             conflictAlgorithm: ConflictAlgorithm.replace)
         .then((value) {
+      showSubmitToDBLoader = false;
       log('insert status $value');
       success = value;
     }).catchError((onError) {
+      showSubmitToDBLoader = false;
       log(onError.toString());
     }).onError((error, stackTrace) {
+      showSubmitToDBLoader = false;
       Get.showSnackbar(errorSnackBar(error.toString()));
     });
 
@@ -40,6 +51,22 @@ abstract class _MeterReadingControllerBase with Store {
     } else {
       return false;
     }
+  }
+
+  @action
+  Future<bool> recordExist(String consumerNumber) async {
+    showSubmitToDBLoader = true;
+    var isExist = false;
+    var client = meterReadingDB;
+
+    var records = await client!.rawQuery(
+        "SELECT * FROM MeterReadings WHERE barcode='$consumerNumber'");
+    if (records.isNotEmpty) {
+      isExist = true;
+    }
+
+    showSubmitToDBLoader = false;
+    return isExist;
   }
 
   @action
@@ -123,10 +150,16 @@ abstract class _MeterReadingControllerBase with Store {
 
   @action
   Future<List<MeterReadingRecord>> getConnections() async {
+    DataConstants.allEntriesControllerMobx.selectedConnectionsLoader = true;
+    DataConstants.allEntriesControllerMobx.allConnectionsLoader = true;
     final client = meterReadingDB;
-    final List<Map<String, dynamic>> connectionList =
-        await client!.query('MeterReadings');
+    final List<Map<String, dynamic>> connectionList = await client!.query(
+        'MeterReadings',
+        where: "branchID =?",
+        whereArgs: [DataConstants.branchID]);
     debugPrint(connectionList.toString());
+    DataConstants.allEntriesControllerMobx.selectedConnectionsLoader = false;
+    DataConstants.allEntriesControllerMobx.allConnectionsLoader = false;
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
@@ -151,8 +184,8 @@ abstract class _MeterReadingControllerBase with Store {
   @action
   Future<List<MeterReadingRecord>> getAllMeterReadingsByStatus(status) async {
     final client = meterReadingDB;
-    final List<Map<String, dynamic>> connectionList = await client!
-        .rawQuery("SELECT * from MeterReadings WHERE uploadStatus='$status'");
+    final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
+        "SELECT * from MeterReadings WHERE uploadStatus='$status' and branchID='${DataConstants.branchID}'");
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
@@ -179,7 +212,7 @@ abstract class _MeterReadingControllerBase with Store {
       int meterStatus) async {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
-        "SELECT * from MeterReadings WHERE meterStatus='$meterStatus'");
+        "SELECT * from MeterReadings WHERE meterStatus='$meterStatus' and branchID='${DataConstants.branchID}'");
     log(connectionList.toString());
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
@@ -207,7 +240,7 @@ abstract class _MeterReadingControllerBase with Store {
       status) async {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
-        "SELECT * from MeterReadings WHERE uploadStatus='$status' LIMIT 25");
+        "SELECT * from MeterReadings WHERE uploadStatus='$status' and branchID='${DataConstants.branchID}' LIMIT 100");
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
@@ -253,7 +286,7 @@ abstract class _MeterReadingControllerBase with Store {
   // Future<void> updateLimitMeterReading() {
   //   var client = meterReadingDB;
   //   client!.rawUpdate(
-  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" Where id IN (Select id from MeterReadings Where uploadStatus = "No" Limit 25)''');
+  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" Where id IN (Select id from MeterReadings Where uploadStatus = "No" Limit 100)''');
   //   print("entry made to database");
   // }
 

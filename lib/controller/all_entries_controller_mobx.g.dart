@@ -50,7 +50,7 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
       context: context);
 
   @override
-  bool get reloadEntryLoaderuploadEntryLoader {
+  bool get uploadEntryLoader {
     _$uploadEntryLoaderAtom.reportRead();
     return super.uploadEntryLoader;
   }
@@ -127,6 +127,23 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
     });
   }
 
+  late final _$searchedconnectionsAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.searchedconnections',
+      context: context);
+
+  @override
+  List<MeterReadingRecord> get searchedconnections {
+    _$searchedconnectionsAtom.reportRead();
+    return super.searchedconnections;
+  }
+
+  @override
+  set searchedconnections(List<MeterReadingRecord> value) {
+    _$searchedconnectionsAtom.reportWrite(value, super.searchedconnections, () {
+      super.searchedconnections = value;
+    });
+  }
+
   late final _$selectedConnectionsAtom = Atom(
       name: '_AllEntriesControllerMobxBase.selectedConnections',
       context: context);
@@ -141,6 +158,39 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
   set selectedConnections(List<MeterReadingRecord> value) {
     _$selectedConnectionsAtom.reportWrite(value, super.selectedConnections, () {
       super.selectedConnections = value;
+    });
+  }
+
+  late final _$isAllSelectedAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.isAllSelected', context: context);
+
+  @override
+  bool get isAllSelected {
+    _$isAllSelectedAtom.reportRead();
+    return super.isAllSelected;
+  }
+
+  @override
+  set isAllSelected(bool value) {
+    _$isAllSelectedAtom.reportWrite(value, super.isAllSelected, () {
+      super.isAllSelected = value;
+    });
+  }
+
+  late final _$showSearchedResultsAtom = Atom(
+      name: '_AllEntriesControllerMobxBase.showSearchedResults',
+      context: context);
+
+  @override
+  bool get showSearchedResults {
+    _$showSearchedResultsAtom.reportRead();
+    return super.showSearchedResults;
+  }
+
+  @override
+  set showSearchedResults(bool value) {
+    _$showSearchedResultsAtom.reportWrite(value, super.showSearchedResults, () {
+      super.showSearchedResults = value;
     });
   }
 
@@ -190,11 +240,34 @@ mixin _$AllEntriesControllerMobx on _AllEntriesControllerMobxBase, Store {
   }
 
   @override
+  void searchbyconsumernumber(String consumernumber) {
+    final _$actionInfo =
+        _$_AllEntriesControllerMobxBaseActionController.startAction(
+            name: '_AllEntriesControllerMobxBase.searchbyconsumernumber');
+    try {
+      return super.searchbyconsumernumber(consumernumber);
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setSelectedStatus(dynamic status) {
     final _$actionInfo = _$_AllEntriesControllerMobxBaseActionController
         .startAction(name: '_AllEntriesControllerMobxBase.setSelectedStatus');
     try {
       return super.setSelectedStatus(status);
+    } finally {
+      _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setIsAllSelected(bool status) {
+    final _$actionInfo = _$_AllEntriesControllerMobxBaseActionController
+        .startAction(name: '_AllEntriesControllerMobxBase.setIsAllSelected');
+    try {
+      return super.setIsAllSelected(status);
     } finally {
       _$_AllEntriesControllerMobxBaseActionController.endAction(_$actionInfo);
     }
@@ -244,7 +317,10 @@ reloadEntryLoader: ${reloadEntryLoader},
 remainingUploads: ${remainingUploads},
 selectedStatus: ${selectedStatus},
 allconnections: ${allconnections},
-selectedConnections: ${selectedConnections}
+searchedconnections: ${searchedconnections},
+selectedConnections: ${selectedConnections},
+isAllSelected: ${isAllSelected},
+showSearchedResults: ${showSearchedResults}
     ''';
   }
 }

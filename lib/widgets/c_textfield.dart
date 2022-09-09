@@ -29,7 +29,7 @@ class CTextField extends StatefulWidget {
   final bool? obscure;
   final List<TextInputFormatter>? inputFormatters;
   final String? Function(String? value)? validation;
-  final ValueChanged? onSaved;
+  final ValueChanged<String>? onSaved;
   final FocusNode? focusNode;
   final FocusNode? nextFocusNode;
   final int? maxline;
@@ -103,7 +103,7 @@ class _CTextFieldState extends State<CTextField> {
         focusNode: widget.focusNode ?? widget.focusNode,
         onSaved: (value) {
           if (widget.onSaved != null) {
-            return widget.onSaved!(value);
+            return widget.onSaved!(value!);
           }
         },
         onChanged: (value) {

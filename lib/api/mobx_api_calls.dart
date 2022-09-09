@@ -82,6 +82,7 @@ class MobxApiCalls {
           debugPrint(await Preferences.getUserId());
           debugPrint(await Preferences.getUserName());
           debugPrint(await Preferences.getBranchID());
+          getBranchDetails();
         }
       } else {
         // DataConstants.loginControllerMobx.showLoginLoader = false;

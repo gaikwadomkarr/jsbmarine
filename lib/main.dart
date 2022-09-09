@@ -101,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void getLocalStorage() async {
     TOKEN = await Preferences.getToken();
     DataConstants.branchID = await Preferences.getBranchID();
+    DataConstants.branchName = await Preferences.getBranchName();
     DataConstants.userID = await Preferences.getUserId();
     DataConstants.username = await Preferences.getUserName();
     log("this is stored token $TOKEN");

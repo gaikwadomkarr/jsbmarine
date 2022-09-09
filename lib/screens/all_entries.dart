@@ -3,16 +3,20 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_icons_null_safety/flutter_icons_null_safety.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jsbmarineversion1/controller/meter_reading_controller_mobx.dart';
 import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
 import 'package:jsbmarineversion1/utils/controller.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
+import 'package:jsbmarineversion1/utils/save_local_storage.dart';
 import 'package:jsbmarineversion1/utils/snackbars.dart';
 import 'package:jsbmarineversion1/utils/string_constant.dart';
 import 'package:jsbmarineversion1/widgets/c_gradient_button.dart';
+import 'package:jsbmarineversion1/widgets/c_textfield.dart';
 import 'package:sizer/sizer.dart';
 
 class AllEntries extends StatefulWidget {
@@ -24,6 +28,9 @@ class AllEntries extends StatefulWidget {
 
 class _AllEntriesState extends State<AllEntries> {
   int selectedStatus = 0;
+  bool showCross = false;
+  String branchName = "";
+  TextEditingController searchCOntroller = TextEditingController();
   List<MeterReadingRecord> meterRecords = [];
   GlobalKey<NavigatorState> navigatorState = GlobalKey<NavigatorState>();
   GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
@@ -70,17 +77,10 @@ class _AllEntriesState extends State<AllEntries> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      key: scaffoldState,
-      backgroundColor: shade4,
-      body: Observer(builder: (context) {
-        return DataConstants.allEntriesControllerMobx.allConnectionsLoader
-            ? const Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: primaryColor,
-                  strokeWidth: 4,
-                ),
-              )
-            : IgnorePointer(
+            key: scaffoldState,
+            backgroundColor: shade4,
+            body: Observer(builder: (context) {
+              return IgnorePointer(
                 ignoring:
                     DataConstants.allEntriesControllerMobx.uploadEntryLoader,
                 child: Column(
@@ -130,13 +130,15 @@ class _AllEntriesState extends State<AllEntries> {
                     SizedBox(
                       height: 1.h,
                     ),
+                    buildSearchBox(),
+                    SizedBox(
+                      height: 1.h,
+                    ),
                     buildMeterStatusFilter(),
                     SizedBox(
                       height: 2.h,
                     ),
-                    DataConstants.allEntriesControllerMobx.allConnectionsLoader
-                        ? const CircularProgressIndicator()
-                        : buildMeterRecord(),
+                    buildMeterRecord(),
                     Observer(builder: (context) {
                       return Container(
                         margin: EdgeInsets.symmetric(horizontal: 5.w),
@@ -213,8 +215,47 @@ class _AllEntriesState extends State<AllEntries> {
                   ],
                 ),
               );
-      }),
-    ));
+            })));
+  }
+
+  Widget buildSearchBox() {
+    return Container(
+        margin: EdgeInsets.symmetric(horizontal: 2.w),
+        child: CTextField(
+          hint_text: 'Search Consumer Number',
+          hintTextStyle: Controller.hintTextStyle(context),
+          controller: searchCOntroller,
+          onSaved: (value) {
+            if (value.isNotEmpty) {
+              setState(() {
+                showCross = true;
+              });
+              DataConstants.allEntriesControllerMobx
+                  .searchbyconsumernumber(searchCOntroller.text);
+            } else {
+              setState(() {
+                DataConstants.allEntriesControllerMobx.showSearchedResults =
+                    false;
+                showCross = false;
+              });
+            }
+          },
+          suffixIcon: showCross
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      DataConstants
+                          .allEntriesControllerMobx.showSearchedResults = false;
+                      searchCOntroller.clear();
+                      showCross = false;
+                    });
+                  },
+                  child: const Icon(
+                    FlutterIcons.close_ant,
+                    color: Colors.red,
+                  ))
+              : null,
+        ));
   }
 
   Widget buildMeterStatusFilter() {
@@ -227,135 +268,269 @@ class _AllEntriesState extends State<AllEntries> {
           scrollDirection: Axis.horizontal,
           itemCount: allmeterStatusList.length,
           itemBuilder: ((context, index) {
-            return GestureDetector(
-              onTap: () async {
-                DataConstants.allEntriesControllerMobx
-                    .setSelectedStatus(int.parse(allmeterStatusNoList[index]));
-                log(DataConstants.allEntriesControllerMobx.selectedStatus
-                    .toString());
-                DataConstants.allEntriesControllerMobx.emptyselectedRecord();
-                if (index == 0) {
-                  DataConstants.allEntriesControllerMobx.getallconnections();
-                } else {
-                  DataConstants.allEntriesControllerMobx
-                      .getstatuswiseconnections(DataConstants
-                          .allEntriesControllerMobx.selectedStatus);
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
-                margin: EdgeInsets.only(right: 2.w),
-                decoration: BoxDecoration(
-                  color:
-                      DataConstants.allEntriesControllerMobx.selectedStatus ==
-                              index
-                          ? primaryColor
-                          : grey,
-                  borderRadius: BorderRadius.circular(2.w),
+            return Observer(builder: (context) {
+              return GestureDetector(
+                onTap: () async {
+                  DataConstants.allEntriesControllerMobx.setSelectedStatus(
+                      int.parse(allmeterStatusNoList[index]));
+                  log(DataConstants.allEntriesControllerMobx.selectedStatus
+                      .toString());
+                  DataConstants.allEntriesControllerMobx.emptyselectedRecord();
+                  if (index == 0) {
+                    DataConstants.allEntriesControllerMobx.getallconnections();
+                  } else {
+                    DataConstants.allEntriesControllerMobx
+                        .getstatuswiseconnections(DataConstants
+                            .allEntriesControllerMobx.selectedStatus);
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+                  margin: EdgeInsets.only(right: 2.w),
+                  decoration: BoxDecoration(
+                    color:
+                        DataConstants.allEntriesControllerMobx.selectedStatus ==
+                                index
+                            ? primaryColor
+                            : grey,
+                    borderRadius: BorderRadius.circular(2.w),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    allmeterStatusList[index],
+                    style: Controller.kwhiteSmallStyle(context, white),
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Text(
-                  allmeterStatusList[index],
-                  style: Controller.kwhiteSmallStyle(context, white),
-                ),
+              );
+            });
+          })),
+    );
+  }
+
+  Widget buildMeterRecords() {
+    return StreamBuilder<List<MeterReadingRecord>>(
+      stream: DataConstants.allEntriesControllerMobx.streamController.stream,
+      builder: (context, AsyncSnapshot<List<MeterReadingRecord>> snapshot) {
+        print("this is snapshot data => ${snapshot.data}");
+        print("this is snapshot data => ${snapshot.connectionState}");
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+                color: primaryColor,
               ),
             );
-          })),
+          case ConnectionState.active:
+            return snapshot.data!.isNotEmpty
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: ((context, index) {
+                      var meterReadingRecord = DataConstants
+                          .allEntriesControllerMobx.allconnections[index];
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                            vertical: 1.h, horizontal: 5.w),
+                        child: ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 0.0.h, horizontal: 2.w),
+                            tileColor: meterReadingRecord.uploadStatus == "No"
+                                ? Colors.green[100]
+                                : white,
+                            onTap: () {
+                              // if (DataConstants
+                              //         .allEntriesControllerMobx.selectedConnections.length ==
+                              //     1) {
+                              //   Get.showSnackbar(errorSnackBar('You can select only one'));
+                              // } else {
+                              if (DataConstants
+                                  .allEntriesControllerMobx.selectedConnections
+                                  .contains(meterReadingRecord)) {
+                                DataConstants.allEntriesControllerMobx
+                                    .removeSelectedRecord(meterReadingRecord);
+                              } else {
+                                DataConstants.allEntriesControllerMobx
+                                    .addSelectedRecord(meterReadingRecord);
+                              }
+                            },
+                            leading: CircleAvatar(
+                              radius: 7.w,
+                              backgroundImage: FileImage(
+                                  File(meterReadingRecord.meterImage!)),
+                            ),
+                            title: RichText(
+                              text: TextSpan(
+                                  text: 'Consumer Number : ',
+                                  style: Controller.kwhiteSmallStyle(
+                                      context, shade2),
+                                  children: [
+                                    TextSpan(
+                                        text: meterReadingRecord.barcode!
+                                            .toString(),
+                                        style: Controller.kwhiteSmallStyle(
+                                            context, black))
+                                  ]),
+                            ),
+                            subtitle: RichText(
+                              text: TextSpan(
+                                  text: 'Meter Reading : ',
+                                  style: Controller.kwhiteSmallStyle(
+                                      context, shade2),
+                                  children: [
+                                    TextSpan(
+                                        text: meterReadingRecord.meterReading!
+                                            .toString(),
+                                        style: Controller.kwhiteSmallStyle(
+                                            context, black))
+                                  ]),
+                            ),
+                            trailing: Observer(builder: (context) {
+                              return DataConstants.allEntriesControllerMobx
+                                      .selectedConnections
+                                      .contains(meterReadingRecord)
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      color: primaryColor,
+                                    )
+                                  : const Icon(
+                                      Icons.check_circle_outline,
+                                      color: shade4,
+                                    );
+                            })),
+                      );
+                    }))
+                : Center(
+                    child: Text(
+                      'No Entries found!',
+                      style: Controller.kblackNormalStyle(context),
+                    ),
+                  );
+          default:
+            return Center(
+              child: Text(
+                'No Entries found!',
+                style: Controller.kblackNormalStyle(context),
+              ),
+            );
+        }
+      },
     );
   }
 
   Widget buildMeterRecord() {
     return Observer(builder: (context) {
       return Expanded(
-        child: DataConstants.allEntriesControllerMobx.allconnections.isNotEmpty
-            ? ListView.builder(
-                shrinkWrap: true,
-                itemCount: DataConstants
-                    .allEntriesControllerMobx.allconnections.length,
-                itemBuilder: ((context, index) {
-                  var meterReadingRecord = DataConstants
-                      .allEntriesControllerMobx.allconnections[index];
-                  return Container(
-                    margin:
-                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
-                    child: ListTile(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 0.0.h, horizontal: 2.w),
-                        tileColor: meterReadingRecord.uploadStatus == "No"
-                            ? Colors.green[100]
-                            : white,
-                        onTap: () {
-                          // if (DataConstants
-                          //         .allEntriesControllerMobx.selectedConnections.length ==
-                          //     1) {
-                          //   Get.showSnackbar(errorSnackBar('You can select only one'));
-                          // } else {
-                          if (DataConstants
-                              .allEntriesControllerMobx.selectedConnections
-                              .contains(meterReadingRecord)) {
-                            DataConstants.allEntriesControllerMobx
-                                .removeSelectedRecord(meterReadingRecord);
-                          } else {
-                            DataConstants.allEntriesControllerMobx
-                                .addSelectedRecord(meterReadingRecord);
-                          }
-                        },
-                        leading: CircleAvatar(
-                          radius: 7.w,
-                          backgroundImage:
-                              FileImage(File(meterReadingRecord.meterImage!)),
-                        ),
-                        title: RichText(
-                          text: TextSpan(
-                              text: 'Consumer Number : ',
-                              style:
-                                  Controller.kwhiteSmallStyle(context, shade2),
-                              children: [
-                                TextSpan(
-                                    text:
-                                        meterReadingRecord.barcode!.toString(),
-                                    style: Controller.kwhiteSmallStyle(
-                                        context, black))
-                              ]),
-                        ),
-                        subtitle: RichText(
-                          text: TextSpan(
-                              text: 'Meter Reading : ',
-                              style:
-                                  Controller.kwhiteSmallStyle(context, shade2),
-                              children: [
-                                TextSpan(
-                                    text: meterReadingRecord.meterReading!
-                                        .toString(),
-                                    style: Controller.kwhiteSmallStyle(
-                                        context, black))
-                              ]),
-                        ),
-                        trailing: Observer(builder: (context) {
-                          return DataConstants
-                                  .allEntriesControllerMobx.selectedConnections
-                                  .contains(meterReadingRecord)
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: primaryColor,
-                                )
-                              : const Icon(
-                                  Icons.check_circle_outline,
-                                  color: shade4,
-                                );
-                        })),
-                  );
-                }))
-            : Center(
-                child: Text(
-                  'No Entries found!',
-                  style: Controller.kblackNormalStyle(context),
-                ),
-              ),
-      );
+          child: DataConstants.allEntriesControllerMobx.allConnectionsLoader
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(
+                        strokeWidth: 4,
+                        color: primaryColor,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Please wait while we load data\nThis may take some time',
+                        textAlign: TextAlign.center,
+                        style: Controller.kblackSemiNormalStyle(context),
+                      )
+                    ],
+                  ),
+                )
+              : DataConstants.allEntriesControllerMobx.showSearchedResults
+                  ? recordBuilder(DataConstants
+                      .allEntriesControllerMobx.searchedconnections)
+                  : recordBuilder(
+                      DataConstants.allEntriesControllerMobx.allconnections));
     });
+  }
+
+  Widget recordBuilder(List<MeterReadingRecord> meterRecords) {
+    return meterRecords.isNotEmpty
+        ? ListView.builder(
+            shrinkWrap: true,
+            itemCount: meterRecords.length,
+            itemBuilder: ((context, index) {
+              var meterReadingRecord = meterRecords[index];
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
+                child: ListTile(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 0.0.h, horizontal: 2.w),
+                    tileColor: meterReadingRecord.uploadStatus == "No"
+                        ? Colors.green[100]
+                        : white,
+                    onTap: () {
+                      // if (DataConstants
+                      //         .allEntriesControllerMobx.selectedConnections.length ==
+                      //     1) {
+                      //   Get.showSnackbar(errorSnackBar('You can select only one'));
+                      // } else {
+                      if (DataConstants
+                          .allEntriesControllerMobx.selectedConnections
+                          .contains(meterReadingRecord)) {
+                        DataConstants.allEntriesControllerMobx
+                            .removeSelectedRecord(meterReadingRecord);
+                      } else {
+                        DataConstants.allEntriesControllerMobx
+                            .addSelectedRecord(meterReadingRecord);
+                      }
+                    },
+                    leading: CircleAvatar(
+                      radius: 7.w,
+                      backgroundImage:
+                          FileImage(File(meterReadingRecord.meterImage!)),
+                    ),
+                    title: RichText(
+                      text: TextSpan(
+                          text: 'Consumer Number : ',
+                          style: Controller.kwhiteSmallStyle(context, shade2),
+                          children: [
+                            TextSpan(
+                                text: meterReadingRecord.barcode!.toString(),
+                                style:
+                                    Controller.kwhiteSmallStyle(context, black))
+                          ]),
+                    ),
+                    subtitle: RichText(
+                      text: TextSpan(
+                          text: 'Meter Reading : ',
+                          style: Controller.kwhiteSmallStyle(context, shade2),
+                          children: [
+                            TextSpan(
+                                text:
+                                    meterReadingRecord.meterReading!.toString(),
+                                style:
+                                    Controller.kwhiteSmallStyle(context, black))
+                          ]),
+                    ),
+                    trailing: Observer(builder: (context) {
+                      return DataConstants
+                              .allEntriesControllerMobx.selectedConnections
+                              .contains(meterReadingRecord)
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: primaryColor,
+                            )
+                          : const Icon(
+                              Icons.check_circle_outline,
+                              color: shade4,
+                            );
+                    })),
+              );
+            }))
+        : Center(
+            child: Text(
+              'No Entries found!',
+              style: Controller.kblackNormalStyle(context),
+            ),
+          );
   }
 
   void reloadEntry() async {
@@ -415,6 +590,7 @@ class _AllEntriesState extends State<AllEntries> {
 
   void uploadEntry() async {
     DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
+    setState(() {});
     meterRecords = await DataConstants.meterReadingControllerMobx
         .getLimitedMeterReadingsByStatus("No");
     List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];

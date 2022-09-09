@@ -1,5 +1,6 @@
 import 'package:jsbmarineversion1/models/login_response.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
+import 'package:jsbmarineversion1/utils/save_local_storage.dart';
 import 'package:mobx/mobx.dart';
 
 import '../models/user_details.dart';
@@ -33,6 +34,8 @@ abstract class _LoginControllerMobxBase with Store {
     data.forEach((element) {
       if (element["ID"].toString() == DataConstants.branchID) {
         branchName = element["Name"];
+        DataConstants.branchName = branchName;
+        Preferences.saveBranchname(branchName);
         return;
       }
     });

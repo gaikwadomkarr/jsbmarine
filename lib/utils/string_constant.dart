@@ -30,6 +30,7 @@ const List<String> meterStatusList = [
   "Tamper",
   "No Use",
   "Meter Stop",
+  "Disconnection"
 ];
 const List<String> allmeterStatusList = [
   "All",
@@ -39,9 +40,10 @@ const List<String> allmeterStatusList = [
   "Tamper",
   "No Use",
   "Meter Stop",
+  "Disconnection"
 ];
 
-const List<String> meterStatusNoList = ["1", "2", "3", "4", "5", "6"];
+const List<String> meterStatusNoList = ["1", "2", "3", "4", "5", "6", "7"];
 const List<String> allmeterStatusNoList = [
   "0",
   "1",
@@ -50,6 +52,7 @@ const List<String> allmeterStatusNoList = [
   "4",
   "5",
   "6",
+  "7"
 ];
 
 // Important folder paths

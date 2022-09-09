@@ -41,6 +41,24 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
     });
   }
 
+  late final _$showSubmitToDBLoaderAtom = Atom(
+      name: '_MeterReadingControllerBase.showSubmitToDBLoader',
+      context: context);
+
+  @override
+  bool get showSubmitToDBLoader {
+    _$showSubmitToDBLoaderAtom.reportRead();
+    return super.showSubmitToDBLoader;
+  }
+
+  @override
+  set showSubmitToDBLoader(bool value) {
+    _$showSubmitToDBLoaderAtom.reportWrite(value, super.showSubmitToDBLoader,
+        () {
+      super.showSubmitToDBLoader = value;
+    });
+  }
+
   late final _$saveMeterReadingAsyncAction = AsyncAction(
       '_MeterReadingControllerBase.saveMeterReading',
       context: context);
@@ -49,6 +67,15 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
   Future<bool> saveMeterReading(MeterReadingRecord meterReadingDb) {
     return _$saveMeterReadingAsyncAction
         .run(() => super.saveMeterReading(meterReadingDb));
+  }
+
+  late final _$recordExistAsyncAction =
+      AsyncAction('_MeterReadingControllerBase.recordExist', context: context);
+
+  @override
+  Future<bool> recordExist(String consumerNumber) {
+    return _$recordExistAsyncAction
+        .run(() => super.recordExist(consumerNumber));
   }
 
   late final _$deleteMeterReadingAsyncAction = AsyncAction(
@@ -151,11 +178,27 @@ mixin _$MeterReadingController on _MeterReadingControllerBase, Store {
         .run(() => super.updateBulkMeterReading(meterRecords));
   }
 
+  late final _$_MeterReadingControllerBaseActionController =
+      ActionController(name: '_MeterReadingControllerBase', context: context);
+
+  @override
+  void setshowSubmitToDBLoader(bool status) {
+    final _$actionInfo =
+        _$_MeterReadingControllerBaseActionController.startAction(
+            name: '_MeterReadingControllerBase.setshowSubmitToDBLoader');
+    try {
+      return super.setshowSubmitToDBLoader(status);
+    } finally {
+      _$_MeterReadingControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
 meterReadingRecord: ${meterReadingRecord},
-meterReadingDB: ${meterReadingDB}
+meterReadingDB: ${meterReadingDB},
+showSubmitToDBLoader: ${showSubmitToDBLoader}
     ''';
   }
 }

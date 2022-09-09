@@ -10,10 +10,8 @@ class Preferences {
   static String userAppFirstTime = "USERAPPFIRSTTIME";
   static String UserTokenKey = "USERTOKEN";
   static String userBranchID = "USERROLE";
+  static String userBranchName = "BRANCHNAME";
   static String dashboardlaunch = "DASHBOARTDLAUNCH";
-  static String addpropertylaunch = "ADDPROPERTYLAUNCH";
-  static String addroomslaunch = "ADDROOMSLAUNCH";
-  static String addFloorslaunch = "ADDFLOORSLAUNCH";
 
 //  static Prefrences _instance = new Prefrences.internal();
 //  static Prefrences getInstance() {
@@ -84,9 +82,20 @@ class Preferences {
     return storage.getString(userBranchID) ?? '';
   }
 
+  static void saveBranchname(String name) async {
+    var storage = await SharedPreferences.getInstance();
+    await storage.setString(userBranchName, name);
+  }
+
+  static Future<String> getBranchName() async {
+    var storage = await SharedPreferences.getInstance();
+    return storage.getString(userBranchName) ?? '';
+  }
+
   static void clearCache() async {
     saveToken("");
     saveBranchID("");
+    saveBranchname("");
     saveUserId("");
     saveUserName("");
     saveUserLoggedIn(false);
