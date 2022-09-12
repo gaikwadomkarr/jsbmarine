@@ -254,7 +254,9 @@ class _NewReadingPageState extends State<NewReadingPage> {
                         spacing: 2.w,
                         children:
                             List.generate(meterStatusList.length, (index) {
-                          return GestureDetector(
+                          return InkWell(
+                            splashColor: shade3,
+                            // splashFactory: InteractiveInkFeatureFactory,
                             onTap: () {
                               setState(() {
                                 selectedStatusValue = meterStatusNoList[index];
@@ -263,22 +265,31 @@ class _NewReadingPageState extends State<NewReadingPage> {
                               });
                               debugPrint(selectedStatusValue.toString());
                             },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Radio(
-                                    value: meterStatusNoList[index],
-                                    groupValue: selectedStatusValue,
-                                    activeColor: primaryColor,
-                                    fillColor: MaterialStateColor.resolveWith(
-                                        (states) => Colors.green),
-                                    onChanged: (String? value) {}),
-                                Text(
-                                  meterStatusList[index],
-                                  style:
-                                      Controller.kblackSemiNormalStyle(context),
-                                )
-                              ],
+                            child: Container(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Radio(
+                                      value: meterStatusNoList[index],
+                                      groupValue: selectedStatusValue,
+                                      activeColor: primaryColor,
+                                      fillColor: MaterialStateColor.resolveWith(
+                                          (states) => Colors.green),
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          selectedStatusValue = value;
+                                          meterStatus = int.parse(value!);
+                                        });
+                                        debugPrint(
+                                            selectedStatusValue.toString());
+                                      }),
+                                  Text(
+                                    meterStatusList[index],
+                                    style: Controller.kblackSemiNormalStyle(
+                                        context),
+                                  )
+                                ],
+                              ),
                             ),
                           );
                         }),

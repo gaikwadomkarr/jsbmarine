@@ -64,7 +64,7 @@ class _AllEntriesState extends State<AllEntries> {
     //   DataConstants.allEntriesControllerMobx.allConnectionsLoader = false;
     // });
     DataConstants.allEntriesControllerMobx.selectedConnections.clear();
-    log(allconnections.toString());
+    // log(allconnections.toString());
   }
 
   Future<void> getNonUploadedRecords() async {
@@ -127,17 +127,27 @@ class _AllEntriesState extends State<AllEntries> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    buildSearchBox(),
-                    SizedBox(
-                      height: 1.h,
-                    ),
-                    buildMeterStatusFilter(),
-                    SizedBox(
-                      height: 2.h,
-                    ),
+                    // SizedBox(
+                    //   height: 1.h,
+                    // ),
+                    Container(
+                        color: shade4,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 1.h,
+                            ),
+                            buildSearchBox(),
+                            SizedBox(
+                              height: 1.h,
+                            ),
+                            buildMeterStatusFilter(),
+                            SizedBox(
+                              height: 2.h,
+                            ),
+                          ],
+                        )),
+
                     buildMeterRecord(),
                     Observer(builder: (context) {
                       return Container(
@@ -220,7 +230,10 @@ class _AllEntriesState extends State<AllEntries> {
 
   Widget buildSearchBox() {
     return Container(
-        margin: EdgeInsets.symmetric(horizontal: 2.w),
+        padding: EdgeInsets.symmetric(
+          horizontal: 2.w,
+        ),
+        color: shade4,
         child: CTextField(
           hint_text: 'Search Consumer Number',
           hintTextStyle: Controller.hintTextStyle(context),
@@ -273,6 +286,8 @@ class _AllEntriesState extends State<AllEntries> {
                 onTap: () async {
                   DataConstants.allEntriesControllerMobx.setSelectedStatus(
                       int.parse(allmeterStatusNoList[index]));
+                  DataConstants.allEntriesControllerMobx
+                      .setIsAllSelected(false);
                   log(DataConstants.allEntriesControllerMobx.selectedStatus
                       .toString());
                   DataConstants.allEntriesControllerMobx.emptyselectedRecord();
@@ -455,7 +470,8 @@ class _AllEntriesState extends State<AllEntries> {
             shrinkWrap: true,
             itemCount: meterRecords.length,
             itemBuilder: ((context, index) {
-              var meterReadingRecord = meterRecords[index];
+              var meterReadingRecord =
+                  meterRecords[meterRecords.length - index - 1];
               return Container(
                 margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
                 child: ListTile(
@@ -482,10 +498,46 @@ class _AllEntriesState extends State<AllEntries> {
                             .addSelectedRecord(meterReadingRecord);
                       }
                     },
-                    leading: CircleAvatar(
-                      radius: 7.w,
-                      backgroundImage:
-                          FileImage(File(meterReadingRecord.meterImage!)),
+                    leading: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            barrierColor: Colors.black87,
+                            builder: (context) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Icon(
+                                        FlutterIcons.close_mco,
+                                        color: Colors.red,
+                                        size: 40.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  CircleAvatar(
+                                    radius: 45.w,
+                                    backgroundImage: FileImage(
+                                        File(meterReadingRecord.meterImage!)),
+                                  )
+                                ],
+                              );
+                            });
+                      },
+                      child: CircleAvatar(
+                        radius: 7.w,
+                        backgroundImage:
+                            FileImage(File(meterReadingRecord.meterImage!)),
+                      ),
                     ),
                     title: RichText(
                       text: TextSpan(
@@ -568,18 +620,19 @@ class _AllEntriesState extends State<AllEntries> {
 
       connections.add(data);
     }
-    log(jsonEncode(connections));
+    // log(jsonEncode(connections));
     // return;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
         var success = await DataConstants.mobxApiCalls.uploadBulkEntry(
             connections,
-            meterRecords,
+            DataConstants.allEntriesControllerMobx.selectedConnections,
             DataConstants.allEntriesControllerMobx.selectedStatus,
             isReload: true);
 
         if (success) {
-          Get.showSnackbar(successSnackBar('All records has been uploaded'));
+          Get.showSnackbar(
+              successSnackBar('Selected records has been uploaded'));
         }
       } else {
         Get.showSnackbar(errorSnackBar('No Internet Connection'));
@@ -625,7 +678,7 @@ class _AllEntriesState extends State<AllEntries> {
 
       connections.add(data);
     }
-    log(jsonEncode(connections));
+    // log(jsonEncode(connections));
     // return;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
