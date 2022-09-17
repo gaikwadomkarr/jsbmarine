@@ -91,6 +91,7 @@ class _MainScreenState extends State<MainScreen> {
                                   CGradientButton(
                                     buttonName: 'Delete',
                                     onPress: () async {
+                                      Navigator.pop(context);
                                       var success = await DataConstants
                                           .meterReadingControllerMobx
                                           .deleteMultipleMeterReading(
@@ -104,11 +105,9 @@ class _MainScreenState extends State<MainScreen> {
                                                 .selectedConnections);
                                         Get.showSnackbar(successSnackBar(
                                             'Record deleted successfully'));
-                                        Navigator.pop(context);
                                       } else {
-                                        Navigator.pop(context);
-                                        // Get.showSnackbar(errorSnackBar(
-                                        //     'Failed. Please try again later'));
+                                        Get.showSnackbar(errorSnackBar(
+                                            'Failed. Please try again later'));
                                       }
                                     },
                                     color: Colors.red,
@@ -122,6 +121,7 @@ class _MainScreenState extends State<MainScreen> {
                         },
                         child: Icon(
                           FlutterIcons.delete_mdi,
+                          color: white,
                           size: 18.sp,
                         ),
                       ),

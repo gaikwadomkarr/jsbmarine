@@ -113,47 +113,10 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context, orientation, deviceType) {
         return GetMaterialApp(
           title: 'JSB Marine',
-          darkTheme: ThemeData.dark().copyWith(
-              primaryColor: primaryColor,
-              scaffoldBackgroundColor: white,
-              // cardColor: const Color(0xFFF2F4F7),
-              // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-              //   backgroundColor: Color(0xFFF2F4F7),
-              //   selectedItemColor: Color(0xFFD75B1F),
-              // ),
-              // textSelectionTheme: TextSelectionThemeData(
-              //   cursorColor: const Color(0xFFD75B1F),
-              //   selectionColor: const Color(0xFFD75B1F).withOpacity(0.5),
-              //   selectionHandleColor: const Color(0xFFD75B1F),
-              // ),
-              // toggleableActiveColor: const Color(0xFFD75B1F),
-              snackBarTheme: const SnackBarThemeData(
-                backgroundColor: shade1,
-              ),
-              appBarTheme: const AppBarTheme(
-                color: primaryColor,
-                iconTheme: IconThemeData(
-                  color: black, //change your color here
-                ),
-              ),
-              brightness: Brightness.dark,
-              colorScheme: const ColorScheme(
-                      primary: Color(0xFFd4d8dd),
-                      primaryVariant: Colors.red,
-                      secondary: Color(0xFFD75B1F),
-                      secondaryVariant: Colors.red,
-                      surface: Colors.red,
-                      background: Colors.red,
-                      error: Colors.red,
-                      onPrimary: Colors.red,
-                      onSecondary: Color(0xFFF2F4F7),
-                      onSurface: Colors.red,
-                      onBackground: Colors.red,
-                      onError: Colors.red,
-                      brightness: Brightness.dark)
-                  .copyWith(secondary: Colors.white)),
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
           home: SplashScreen(),
-          themeMode: ThemeConstants.themeMode.value,
         );
       },
     );

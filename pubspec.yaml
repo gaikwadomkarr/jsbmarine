@@ -60,6 +60,7 @@ dependencies:
   image_cropper: ^3.0.0
   flutter_icons_null_safety: ^1.1.0
   camera: ^0.10.0+1
+  crop:
 
 dev_dependencies:
   flutter_test:

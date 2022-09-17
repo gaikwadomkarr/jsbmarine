@@ -94,38 +94,29 @@ class MobxApiCalls {
     }
   }
 
-  void uploadEntry(var data, int id, int selectedStatus) async {
-    DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
+  Future<bool> uploadEntry(var data) async {
+    DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(true);
     String url = insertSingleBill;
     try {
       var response = await ApiBasicCalls().getDio('json').post(url, data: data);
       log(response.requestOptions.baseUrl);
       if (response.statusCode == 200) {
         log(response.data.toString());
-        await DataConstants.meterReadingControllerMobx
-            .updateMeterReading(id, data);
-        List<MeterReadingRecord> connections;
-        if (selectedStatus == 0) {
-          connections =
-              await DataConstants.meterReadingControllerMobx.getConnections();
-        } else {
-          connections = await DataConstants.meterReadingControllerMobx
-              .getAllMeterReadingsByMeterStatus(selectedStatus);
-        }
-        DataConstants.allEntriesControllerMobx
-            .updateAllConnections(connections);
-        DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(false);
         Get.showSnackbar(successSnackBar(response.data['Message']));
+        return true;
       } else {
-        DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+        DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(false);
         Get.showSnackbar(errorSnackBar(response.data['error_description']));
+        return false;
       }
     } on DioError catch (e) {
-      DataConstants.allEntriesControllerMobx.uploadEntryLoader = false;
+      DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(false);
       Get.showSnackbar(errorSnackBar(e.response!.data['Message']));
       if (e.response!.data.toString().contains('denied')) {
         Get.offAll(LoginScreen());
       }
+      return false;
     }
   }
 
@@ -138,6 +129,7 @@ class MobxApiCalls {
       DataConstants.allEntriesControllerMobx.uploadEntryLoader = true;
     }
     String url = insertBulkBill;
+    // log(json.encode(data));
     try {
       var response = await ApiBasicCalls().getDio('json').post(url, data: data);
       log(response.requestOptions.baseUrl);

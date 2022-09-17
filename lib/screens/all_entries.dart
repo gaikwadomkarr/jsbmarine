@@ -49,6 +49,8 @@ class _AllEntriesState extends State<AllEntries> {
   void dispose() {
     // TODO: implement dispose
     DataConstants.allEntriesControllerMobx.selectedStatus = 0;
+    DataConstants.allEntriesControllerMobx.setIsAllSelected(false);
+    DataConstants.allEntriesControllerMobx.selectedConnections.clear();
     super.dispose();
   }
 
@@ -159,6 +161,8 @@ class _AllEntriesState extends State<AllEntries> {
                             IgnorePointer(
                               ignoring: meterRecords.isEmpty,
                               child: CGradientButton(
+                                  style: Controller.buttonText(context)
+                                      .copyWith(color: white),
                                   buttonName: DataConstants
                                           .allEntriesControllerMobx
                                           .uploadEntryLoader
@@ -191,6 +195,8 @@ class _AllEntriesState extends State<AllEntries> {
                               ignoring: DataConstants.allEntriesControllerMobx
                                   .selectedConnections.isEmpty,
                               child: CGradientButton(
+                                  style: Controller.buttonText(context)
+                                      .copyWith(color: white),
                                   buttonName: DataConstants
                                           .allEntriesControllerMobx
                                           .reloadEntryLoader
@@ -586,7 +592,6 @@ class _AllEntriesState extends State<AllEntries> {
   }
 
   void reloadEntry() async {
-    DataConstants.allEntriesControllerMobx.reloadEntryLoader = true;
     List<Map<String, dynamic>> connections = <Map<String, dynamic>>[];
     // var data = Map<String, dynamic>.from(DataConstants
     //     .allEntriesControllerMobx.selectedConnections.first
@@ -622,6 +627,12 @@ class _AllEntriesState extends State<AllEntries> {
     }
     // log(jsonEncode(connections));
     // return;
+
+    if (connections.length > 10) {
+      Get.showSnackbar(errorSnackBar('Please select upto 10 records only'));
+      return;
+    }
+    DataConstants.allEntriesControllerMobx.reloadEntryLoader = true;
     Controller.getInternetStatus().then((value) async {
       if (value!) {
         var success = await DataConstants.mobxApiCalls.uploadBulkEntry(
@@ -693,11 +704,13 @@ class _AllEntriesState extends State<AllEntries> {
           if (meterRecords.isEmpty) {
             Get.showSnackbar(successSnackBar('All records has been uploaded'));
           } else {
-            showNextBatchDialog(
-                "Successful",
-                "Upload Successfull, Continue with next batch",
-                "Ok",
-                "Next Batch");
+            // showNextBatchDialog(
+            //     "Successful",
+            //     "Upload Successfull, Continue with next batch",
+            //     "Ok",
+            //     "Next Batch");
+
+            uploadEntry();
           }
         }
       } else {
@@ -708,27 +721,6 @@ class _AllEntriesState extends State<AllEntries> {
 
   void showNextBatchDialog(
       String title, String message, String btnText, String btn2Text) {
-    // Get.defaultDialog(
-    //   // navigatorKey: scaffoldState.currentWidget.,
-    //   barrierDismissible: false,
-    //   title: title,
-    //   middleText: message,
-    //   actions: <Widget>[
-    //     TextButton(
-    //       child: Text(btnText),
-    //       onPressed: () {
-    //         Navigator.pop(scaffoldState.currentContext!);
-    //       },
-    //     ),
-    //     TextButton(
-    //       child: Text(btn2Text),
-    //       onPressed: () {
-    //         Navigator.pop(scaffoldState.currentContext!);
-    //         uploadEntry();
-    //       },
-    //     ),
-    //   ],
-    // );
     showDialog(
       context: scaffoldState.currentContext!,
       barrierDismissible: false,
@@ -749,7 +741,6 @@ class _AllEntriesState extends State<AllEntries> {
               child: Text(btn2Text),
               onPressed: () {
                 Navigator.pop(scaffoldState.currentContext!);
-                uploadEntry();
               },
             ),
           ],

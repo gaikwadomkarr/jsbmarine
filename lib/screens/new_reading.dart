@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as log;
 import 'dart:io';
 import 'dart:math';
 import 'package:dio/dio.dart' as dio;
@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:intl/intl.dart';
 import 'package:jsbmarineversion1/models/meter_reading_db_model.dart';
+import 'package:jsbmarineversion1/screens/all_entries.dart';
 import 'package:jsbmarineversion1/utils/color_constants.dart';
 import 'package:jsbmarineversion1/utils/controller.dart';
 import 'package:jsbmarineversion1/utils/data_constants.dart';
@@ -21,6 +22,7 @@ import 'package:jsbmarineversion1/utils/string_constant.dart';
 import 'package:jsbmarineversion1/widgets/c_gradient_button.dart';
 import 'package:jsbmarineversion1/widgets/c_textfield.dart';
 import 'package:jsbmarineversion1/widgets/camera_widget.dart';
+import 'package:jsbmarineversion1/widgets/crop_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:path/path.dart' as p;
@@ -70,27 +72,35 @@ class _NewReadingPageState extends State<NewReadingPage> {
   }
 
   takeImage() async {
-    showModalBottomSheet(
+    if (cnController.text.isEmpty) {
+      Get.showSnackbar(errorSnackBar('Please enter Consumer number'));
+      return;
+    }
+    final image = await showModalBottomSheet(
         isScrollControlled: true,
         enableDrag: true,
         isDismissible: true,
         context: context,
         builder: (context) {
-          return CamerWidget();
+          return CamerWidget(
+            imageName: "${cnController.text}${DateTime.now()}",
+          );
         });
-    // if (pickedFile != null) {
-    //   final bytes = await pickedFile.length();
-    //   final kb = bytes / 1024;
-    //   final mb = kb / 1024;
-    //   // log('thiis is imagge size => $mb');
-    //   if (mb > 2) {
-    //     Controller.showErrorToast('Image size should be upto 2 mb', context);
-    //     return null;
-    //   }
-    //   return File(pickedFile.path);
-    // } else {
-    //   return null;
-    // }
+    if (image != null) {
+      print('Yeah we have image ready');
+      final bytes = await image.length();
+      final kb = bytes / 1024;
+      final mb = kb / 1024;
+      log.log('thiis is imagge size => $kb - $mb');
+      if (mb > 2) {
+        Controller.showErrorToast('Image size should be upto 2 mb', context);
+        return;
+      } else {
+        imageCrop(image);
+      }
+    } else {
+      return;
+    }
   }
 
   @override
@@ -189,7 +199,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GestureDetector(
-                          onTap: getImage,
+                          onTap: takeImage,
                           child: Container(
                             alignment: Alignment.center,
                             child: CircleAvatar(
@@ -301,6 +311,8 @@ class _NewReadingPageState extends State<NewReadingPage> {
                   Container(
                     alignment: Alignment.center,
                     child: CGradientButton(
+                      style:
+                          Controller.buttonText(context).copyWith(color: white),
                       buttonName: DataConstants
                               .meterReadingControllerMobx.showSubmitToDBLoader
                           ? ''
@@ -337,30 +349,40 @@ class _NewReadingPageState extends State<NewReadingPage> {
     }
     var image = await Controller.imgFromCamera(context);
     if (image != null) {
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
-        cropStyle: CropStyle.circle,
-        sourcePath: image.path,
-        aspectRatioPresets: [
-          CropAspectRatioPreset.original,
-        ],
-        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-        uiSettings: [
-          AndroidUiSettings(
-              toolbarTitle: 'Cropper',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false),
-          IOSUiSettings(
-            title: 'Cropper',
-          ),
-          WebUiSettings(
-            context: context,
-          ),
-        ],
-      );
+      // CroppedFile? croppedFile = await ImageCropper().cropImage(
+      //   cropStyle: CropStyle.circle,
+      //   sourcePath: image.path,
+      //   aspectRatioPresets: [
+      //     CropAspectRatioPreset.original,
+      //   ],
+      //   aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      //   uiSettings: [
+      //     AndroidUiSettings(
+      //         toolbarTitle: 'Cropper',
+      //         toolbarColor: Colors.deepOrange,
+      //         toolbarWidgetColor: Colors.white,
+      //         initAspectRatio: CropAspectRatioPreset.original,
+      //         lockAspectRatio: false),
+      //     IOSUiSettings(
+      //       title: 'Cropper',
+      //     ),
+      //     WebUiSettings(
+      //       context: context,
+      //     ),
+      //   ],
+      // );
+      imageCrop(image);
+    }
+  }
+
+  void imageCrop(File? image) async {
+    File? croppedFile = await Get.to(CropWidget(
+      image: image,
+      imageName: "${cnController.text}${DateTime.now()}",
+    ));
+    if (croppedFile != null) {
       setState(() {
-        meterReadingImage = File(croppedFile!.path);
+        meterReadingImage = File(croppedFile.path);
       });
       pngByteData = await meterReadingImage!.readAsBytes();
       imagebase64 = base64Encode(pngByteData);
@@ -378,6 +400,8 @@ class _NewReadingPageState extends State<NewReadingPage> {
         getImage();
       }
       // log(imagebase64.toString());
+    } else {
+      imageCrop(image);
     }
   }
 
@@ -414,7 +438,7 @@ class _NewReadingPageState extends State<NewReadingPage> {
     //   Get.showSnackbar(errorSnackBar('Record already present!'));
     //   return;
     // }
-    dio.FormData formData = dio.FormData.fromMap({
+    Map<String, dynamic> formData = {
       "deviceId": DataConstants.uniqueId,
       "scanDate": createDate,
       "meterReading": meterReading,
@@ -427,10 +451,9 @@ class _NewReadingPageState extends State<NewReadingPage> {
       "locationName": "null",
       "imageBase64": imagebase64,
       "meterStatus": meterStatus
-    });
+    };
 
-    debugPrint(formData.fields.toString());
-
+    debugPrint(formData.toString());
     final meterReadingRecord = MeterReadingRecord(
         deviceId: DataConstants.uniqueId,
         scanDate: DateTime.now().toString(),
@@ -446,25 +469,47 @@ class _NewReadingPageState extends State<NewReadingPage> {
         meterStatus: meterStatus.toString(),
         meterImage: meterReadingImage!.path,
         uploadStatus: "No");
+
+    Controller.getInternetStatus().then((value) async {
+      if (value!) {
+        var success = await DataConstants.mobxApiCalls.uploadEntry(formData);
+        if (success) {
+          saveToDB(meterReadingRecord, true);
+        } else {
+          saveToDB(meterReadingRecord, false);
+        }
+      } else {
+        Get.showSnackbar(errorSnackBar('No Internet Connection'));
+      }
+    });
+  }
+
+  void saveToDB(var meterReadingRecord, bool isServerUploaded) async {
     var success = await DataConstants.meterReadingControllerMobx
         .saveMeterReading(meterReadingRecord);
     if (success) {
-      // consumerNumber = '';
-      // meterReading = '';
-      // cnController.clear();
-      // mrController.clear();
-      // meterStatus = 1;
-      // selectedStatusValue = "1";
-      // meterReadingImage = null;
-      setState(() {});
+      clear();
       DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(false);
-      Get.showSnackbar(successSnackBar('Record saved successfully'));
+      Get.showSnackbar(successSnackBar(isServerUploaded
+          ? 'Record uploaded to server successfully'
+          : 'Record save to Database'));
     } else {
       DataConstants.meterReadingControllerMobx.setshowSubmitToDBLoader(false);
       Get.showSnackbar(
           errorSnackBar('Failed to save record. Please try again'));
+      saveToDB(meterReadingRecord, isServerUploaded);
     }
-    debugPrint(
-        DataConstants.meterReadingControllerMobx.getConnections().toString());
+  }
+
+  void clear() {
+    setState(() {
+      consumerNumber = '';
+      meterReading = '';
+      cnController.clear();
+      mrController.clear();
+      meterStatus = 1;
+      selectedStatusValue = "1";
+      meterReadingImage = null;
+    });
   }
 }

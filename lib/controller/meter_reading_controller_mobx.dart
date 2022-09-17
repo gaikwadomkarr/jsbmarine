@@ -240,7 +240,7 @@ abstract class _MeterReadingControllerBase with Store {
       status) async {
     final client = meterReadingDB;
     final List<Map<String, dynamic>> connectionList = await client!.rawQuery(
-        "SELECT * from MeterReadings WHERE uploadStatus='$status' and branchID='${DataConstants.branchID}' LIMIT 100");
+        "SELECT * from MeterReadings WHERE uploadStatus='$status' and branchID='${DataConstants.branchID}' LIMIT 10");
     return List.generate(connectionList.length, (i) {
       return MeterReadingRecord(
         id: connectionList[i]['id'],
@@ -286,7 +286,7 @@ abstract class _MeterReadingControllerBase with Store {
   // Future<void> updateLimitMeterReading() {
   //   var client = meterReadingDB;
   //   client!.rawUpdate(
-  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" Where id IN (Select id from MeterReadings Where uploadStatus = "No" Limit 100)''');
+  //       '''UPDATE MeterReadings SET uploadStatus = "Yes" Where id IN (Select id from MeterReadings Where uploadStatus = "No" Limit 25)''');
   //   print("entry made to database");
   // }
 
